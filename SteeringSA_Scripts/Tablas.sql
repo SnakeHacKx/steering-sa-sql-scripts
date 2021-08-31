@@ -12,7 +12,8 @@ create table Conductor(
 	Tipo_de_sangre varchar(5) not null,
 	Tipo_de_licencia varchar(5) not null
 	primary key (Cedula)
-);
+	);
+
 --tabla mantenimiento--
 create table Mantenimiento(
 	Cod_mantenimiento int not null,
