@@ -1,4 +1,4 @@
-select * from Conductor
+SELECT * FROM Conductor
 
 ALTER PROC insertar_conductor(
 	@cedula varchar(15),
@@ -27,3 +27,4 @@ begin
 	rollback tran
 	set @MsjError = 'Ya existe un coductor con esta cedula'
 end
+go
