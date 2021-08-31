@@ -1,6 +1,6 @@
 ---SEMESTRAL DE BASE DE DATOS---
 create database [Steering S.A];
-
+select * from Conductor
 --creacion de las tablas
 --tabla conductor--
 create table Conductor(
