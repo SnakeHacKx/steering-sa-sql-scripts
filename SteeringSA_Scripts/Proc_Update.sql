@@ -56,22 +56,6 @@ begin
 end
 go
 
---Procedimiento para actualizar Conductor
-create proc actualizar_conductor
-@ced varchar(15),
-@nom varchar(30),
-@ap varchar(30),
-@tel int,
-@F date,
-@sangre varchar(5),
-@lic varchar(5)
-as
-begin
-	update Conductor set Nombre=@nom,Apellido=@ap,Telefono=@tel,Fecha_de_nacimiento=@F,Tipo_de_sangre=@sangre,Tipo_de_licencia=@lic
-	where Cedula=@ced;
-end
-go
-
 --procedimiento para actualizar vehiculo
 create proc actualizar_vehiculo
 @matricula varchar(10),

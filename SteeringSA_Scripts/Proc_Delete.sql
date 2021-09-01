@@ -29,19 +29,6 @@ begin
 end
 GO
 
-
---Procedimiento para eliminar conductores
-create proc eliminar_conductor
-@ced varchar(15)
-as
-begin
-	delete from Conductor where Cedula=@ced
-end;
-go
-
-
-
-
 --Procedimiento para eliminar Mantenimiento
 create proc eliminar_mantenimiento
 	@cod_m int
