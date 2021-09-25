@@ -31,16 +31,6 @@ create table Reporte(
 	primary key(Cod_reporte)
 
 )
---Tabla servicio--
-create table Servicio(
-	Cod_servicio int not null,
-	Cliente varchar(50) not null,
-	Fecha_de_inicio date not null,
-	fecha_de_finalizacion date not null,
-	Descripcion varchar(150) not null,
-	Costo money not null,
-	primary key(Cod_servicio)
-)
 --Tabla Vehiculo--
 create table Vehiculo(
 	Placa varchar(10) not null,
@@ -52,16 +42,7 @@ create table Vehiculo(
 	Color varchar(10) not null,
 	primary key(Placa)
 )
---tabla Conducir
-create table Conducir(
-	Cedula varchar(15) not null,
-	Placa varchar(10) not null,
-	Cod_servicio int not null,
-	foreign key(Cedula) references Conductor(Cedula),
-	foreign key (Placa) references Vehiculo(Placa),
-	foreign key(Cod_servicio) references Servicio(Cod_servicio)
-)
---table Hacer--
+--tabla Hacer--
 create table Hacer(
 	Placa varchar(10) not null,
 	Cod_mantenimiento int not null,
@@ -70,28 +51,34 @@ create table Hacer(
 	foreign key(Cod_mantenimiento) references Mantenimiento(Cod_mantenimiento),
 	foreign key(Cod_reporte) references Reporte(Cod_reporte)
 )
-select *from Conductor
-select *from Vehiculo
-select *from Servicio
-select *from Reporte
-select *from Mantenimiento
-select *from Hacer
-select *from Conducir
---INSERCION DE ALMENOS 1 DATO
-insert into Conductor values ('70-0000-00000','Carlos','Escobar','8888-8888','1998-05-08','B-','C')
-insert into Vehiculo values ('ER02','4LL','Sedan','Disponible',2,'95','Azul')
-insert into Servicio values (67,'Jatech','2021-07-21','2021-07-19','Transporte de empleados',35.00)
-insert into Reporte values (25,'Fuga de aceite','2021-07-19','Javier Rodriguez')
-insert into Mantenimiento values(36,'Sellado de fuga','2021-07-19',24.00)
-insert into Conducir values('70-0000-00000','ER02',67)
-insert into Hacer values('ER02',36,25)
---ACTUALIZACION
-update Conductor set Apellido='Arrosemena' where Cedula='70-0000-00000'
---Eliminacion
-delete from Conductor where Cedula='70-0000-00000'
 
---ACTUALIZAR DATOS CONDUCTOR
-exec actualizar_conductor '70-0000-00000','José','Barria','8888-8888','1998-05-08','B-','D'
---Eliminar registro conductor
-delete from Conducir where Cedula='70-0000-00000'
-delete from Conductor where Cedula='70-0000-00000'
+/*MODIFICACION DEL LA BASE DE DATOS 24-9-21 
+MODIFICACION DE RELACION ENTRE CONDUCTORES, SERVICIOS Y VEHICULOS
+SE MODIFICARA TAMBIEN LA TABLA SERVICIOS PARA SER TIPOS DE SERVICIOS
+LA RELACION PASARA A LLAMARSE SERVICIOS*/
+
+USE [Steering S.A];
+GO
+--CREACION DE LA TABLA TIPO DE SERVICIOS
+CREATE TABLE Tipo_servicios(
+	Cod_tipo_servicio INT NOT NULL,
+	Nombre_servicio VARCHAR(40) NOT NULL,
+	Costo_servicio MONEY NOT NULL,
+	PRIMARY KEY (Cod_tipo_servicio)
+);
+GO
+
+--CREACION DE LA TABLA SERVICIO
+CREATE TABLE Servicio(
+	Cod_tipo_servicio INT NOT NULL,
+	Cedula VARCHAR(15) NOT NULL,
+	Placa VARCHAR(10) NOT NULL,
+	Nombre_Cliente VARCHAR(35) NOT NULL,
+	Fecha_inicio DATE NOT NULL,
+	Fecha_finalizacion DATE NOT NULL,
+	FOREIGN KEY(Cod_tipo_servicio) REFERENCES Tipo_servicios(Cod_tipo_servicio),
+	FOREIGN KEY (Cedula) REFERENCES Conductor(Cedula),
+	FOREIGN KEY(Placa) REFERENCES Vehiculo(Placa)
+);
+GO
+
