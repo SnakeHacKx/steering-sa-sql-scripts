@@ -3,7 +3,7 @@ create database Steering_SA
 ON PRIMARY
 (
 	Name ='Steering_SA_DATA',
-	Filename = 'C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\Steering_SA.MDF',
+	Filename = 'F:\Program Files\Microsft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\Steering_SA.MDF',
 	Size = 10MB,
 	MAXSIZE = 30,
 	FILEGROWTH = 2MB
@@ -11,12 +11,13 @@ ON PRIMARY
 LOG ON
 (
 	Name='Steering_SA_LOG',
-	Filename='C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\Steering_SA.LDF',
+	Filename='F:\Program Files\Microsft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\Steering_SA.LDF',
 	Size = 4MB,
 	MAXSIZE = 15,
 	FILEGROWTH = 20%
 )
 GO
+
 --creacion de las tablas
 --tabla conductor--
 create table Conductor(
