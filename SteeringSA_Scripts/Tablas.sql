@@ -1,6 +1,6 @@
 ---SEMESTRAL DE BASE DE DATOS---
 create database Steering_SA
-ON PRIMARY
+/*ON PRIMARY
 (
 	Name ='Steering_SA_DATA',
 	Filename = 'F:\Program Files\Microsft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\Steering_SA.MDF',
@@ -15,9 +15,8 @@ LOG ON
 	Size = 4MB,
 	MAXSIZE = 15,
 	FILEGROWTH = 20%
-)
+)*/
 GO
-
 --creacion de las tablas
 --tabla conductor--
 create table Conductor(
@@ -81,21 +80,36 @@ CREATE TABLE Tipo_servicios(
 	Cod_tipo_servicio INT NOT NULL,
 	Nombre_servicio VARCHAR(40) NOT NULL,
 	Costo_servicio MONEY NOT NULL,
+	Descripcion_servicio VARCHAR(175)DEFAULT(''),
 	PRIMARY KEY (Cod_tipo_servicio)
 );
 GO
 
 --CREACION DE LA TABLA SERVICIO
 CREATE TABLE Servicio(
+	Cod_Servicio INT IDENTITY(1,1),
 	Cod_tipo_servicio INT NOT NULL,
-	Cedula VARCHAR(15) NOT NULL,
+	Cedula_Conductor VARCHAR(15) NOT NULL,
 	Placa VARCHAR(10) NOT NULL,
-	Nombre_Cliente VARCHAR(35) NOT NULL,
+	Cedula_Cliente VARCHAR(15) NOT NULL,
 	Fecha_inicio DATE NOT NULL,
 	Fecha_finalizacion DATE NOT NULL,
+	Monto_Total_Servicio MONEY NOT NULL,
+	PRIMARY KEY (Cod_Servicio),
 	FOREIGN KEY(Cod_tipo_servicio) REFERENCES Tipo_servicios(Cod_tipo_servicio),
-	FOREIGN KEY (Cedula) REFERENCES Conductor(Cedula),
-	FOREIGN KEY(Placa) REFERENCES Vehiculo(Placa)
+	FOREIGN KEY (Cedula_Conductor) REFERENCES Conductor(Cedula),
+	FOREIGN KEY(Placa) REFERENCES Vehiculo(Placa),
+	FOREIGN KEY(Cedula_Cliente) REFERENCES TB_Cliente(Cedula_Cliente)
 );
 GO
-
+--CREACION DE LA TABLA CLIENTES
+CREATE TABLE TB_Cliente(
+	Cedula_Cliente VARCHAR(15) NOT NULL,
+	Nombre_Cliente VARCHAR(35) NOT NULL,
+	Apellido_Cliente VARCHAR(35) NOT NULL,
+	Fecha_Nacimiento_Cliente DATE NOT NULL,
+	Telefono_Cliente VARCHAR(15)NOT NULL,
+	Direccion_CLiente VARCHAR(65) NOT NULL,
+	PRIMARY KEY (Cedula_Cliente)
+);
+GO
