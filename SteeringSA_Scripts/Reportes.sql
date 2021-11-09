@@ -1,0 +1,55 @@
+--Reporte
+
+--PROCEDIMIENTO PARA REGISTRAR UN REPORTE
+ALTER PROC PROC_REGISTRAR_REPORTE(
+	@Placa_Vehiculo VARCHAR(10),
+	@Descripcion VARCHAR(150),
+	@MsgSuccess VARCHAR(50) OUTPUT,
+	@MsgError VARCHAR(50) OUTPUT
+)
+AS
+BEGIN
+	BEGIN TRAN
+	DECLARE @Cod_Reporte VARCHAR(10)
+	IF EXISTS (SELECT *FROM Vehiculo WHERE Placa=@Placa_Vehiculo)
+	BEGIN
+			SET @Cod_Reporte = DBO.FUNC_GENERAR_COD_REPORTE(@Placa_Vehiculo)
+			BEGIN TRY
+				INSERT INTO Reporte(Cod_reporte,Placa_Vehiculo,Fecha,Descripcion)
+				VALUES(@Cod_Reporte,@Placa_Vehiculo,GETDATE(),@Descripcion)
+				SET @MsgSuccess='REPORTE REGISTRADO EXITOSAMENTE'
+				COMMIT
+			END TRY
+			BEGIN CATCH
+				SET @MsgError= 'ERROR AL INTENTAR REGISTRAR EL REPORTE'
+				ROLLBACK
+			END CATCH
+	END
+	ELSE
+	BEGIN
+		SET @MsgError='EL VEHICULO SELECCIONADO PARA REALIZARLE EL REPORTE NO SE ENCUENTRA REGISTRADO EN LA BASE DE DATOS'
+		ROLLBACK
+	END
+END
+GO
+
+ALTER FUNCTION FUNC_GENERAR_COD_REPORTE(@Placa_Vehiculo VARCHAR(10))
+RETURNS VARCHAR(10)
+AS
+BEGIN
+	DECLARE
+	 @Codigo VARCHAR(10),
+	 @condicion INT,
+	 @Num INT
+	SET @Num =0
+	SET @condicion =0
+	WHILE(@condicion =0)
+	BEGIN
+		SET @Codigo = ''+SUBSTRING(@Placa_Vehiculo,1,3)+''+CAST(@Num AS VARCHAR(10))
+		IF NOT EXISTS(SELECT * FROM Reporte WHERE Placa_Vehiculo = @Placa_Vehiculo AND Cod_reporte=@Codigo)
+			RETURN (@Codigo)
+		SET @Num=@Num+1
+	END
+	RETURN '-1'
+END
+GO

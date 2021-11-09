@@ -30,32 +30,30 @@ create table Conductor(
 	primary key (Cedula)
 	);
 
---tabla mantenimiento--
-create table Tipo_mantenimiento(
-	Cod_tipo_mantenimiento int not null,
-	Descripcion varchar(125) not null,
-	primary key(Cod_tipo_mantenimiento)
-)
 --Tabla reporte ---
-create table Reporte(
-	Cod_reporte int not null,
-	Descripcion varchar(150) not null,
-	Fecha date not null,
-	Responsable varchar(70) not null,
-	primary key(Cod_reporte)
-
+CREATE TABLE Reporte(
+	Cod_reporte VARCHAR(10),
+	Placa_Vehiculo VARCHAR(10) NOT NULL,
+	Estado VARCHAR(13) NOT NULL DEFAULT 'NO ATENDIDO',
+	Descripcion VARCHAR(150) NOT NULL,
+	Fecha DATE NOT NULL,
+	PRIMARY KEY(Cod_reporte),
+	FOREIGN KEY(Placa_Vehiculo) REFERENCES Vehiculo(Placa)
 )
 --tabla Hacer--
-create table Mantenimiento(
-	Placa varchar(10) not null,
-	Cod_tipo_mantenimiento int not null,
-	Cod_reporte int not null default -1,
-	Costo money not null,
-	Fecha date not null,
-	foreign key (Placa) references Vehiculo(Placa),
-	foreign key(Cod_tipo_mantenimiento) references Tipo_mantenimiento(Cod_tipo_mantenimiento),
-	foreign key(Cod_reporte) references Reporte(Cod_reporte)
+CREATE TABLE Mantenimiento(
+	Cod_Mantenimiento INT IDENTITY(1,1),
+	Placa_Vehiculo VARCHAR(10) NOT NULL,
+	Cod_reporte VARCHAR(10) NOT NULL,
+	Costo MONEY DEFAULT 0.00,
+	Fecha DATE NOT NULL,
+	Descripcion varchar(225) not null,
+	Estado VARCHAR(15) NOT NULL,
+	PRIMARY KEY(Cod_Mantenimiento),
+	FOREIGN KEY (Placa_Vehiculo) REFERENCES Vehiculo(Placa)
 )
+
+
 --Tabla Vehiculo--
 create table Vehiculo(
 	Placa varchar(10) not null,
