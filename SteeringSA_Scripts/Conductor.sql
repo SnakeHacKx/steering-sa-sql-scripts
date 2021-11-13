@@ -102,6 +102,22 @@ GO
 --EJECUTAR HASTA AQUI 
 
 
+CREATE PROC Select_DriverAll
+AS
+BEGIN
+	SELECT
+	Cedula AS 'Cédula',
+	Nombre AS 'Nombre',
+	Apellido AS 'Apellido',
+	Fecha_de_nacimiento AS 'Fecha de Nacimiento',
+	Tipo_de_sangre AS 'Tipo de Sangre',
+	Tipo_de_licencia AS 'Tipo de Licencia'
+	FROM Conductor
+	ORDER BY Apellido ASC
+END
+GO
+
+
 /*
 -- CONSULTAS --
 
