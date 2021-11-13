@@ -1,91 +1,108 @@
-SELECT * FROM Conductor
 
 -- Procedimiento para insertar conductor
-ALTER PROC insertar_conductor(
-	@cedula varchar(15),
-	@nombre varchar(30),
-	@apellido varchar(30),
-	@telefono varchar(10),
+ALTER PROC PROC_REGISTRAR_CONDUCTOR(
+	@cedula VARCHAR(15),
+	@nombre VARCHAR(30),
+	@apellido VARCHAR(30),
+	@telefono VARCHAR(10),
 	@fechaNac date,
-	@tipoSangre varchar(5),
-	@tipoLicencia varchar(5),
-
-	@MsjExito varchar(50) = '' output,
-	@MsjError varchar(50) = '' output
+	@tipoSangre VARCHAR(3),
+	@tipoLicencia VARCHAR(2),
+	@MsgSuccess VARCHAR(50) OUTPUT,
+	@MsgError VARCHAR(50) OUTPUT
 )
-as
+AS
 -- Validar si el conductor existe
-begin tran
-if not exists(select top 1 Cedula from Conductor where Cedula = @cedula)
-begin
-	insert into Conductor(Cedula, Nombre, Apellido, Telefono, Fecha_de_nacimiento, Tipo_de_sangre, Tipo_de_licencia)
-	values(@cedula, @nombre, @apellido,@telefono, @fechaNac, @tipoSangre, @tipoLicencia)
-	commit tran 
-	set @MsjExito = 'El conductor fue registrado exitosamente'
-end
-else
-begin
-	rollback tran
-	set @MsjError = 'Ya existe un coductor con esta cedula'
-end
-go
+BEGIN TRAN
+	IF NOT EXISTS(SELECT Cedula FROM Conductor WHERE Cedula = @cedula)
+	BEGIN
+		BEGIN TRY--INTENTAR INGRESAR LOS DATOS A LA TABLA 
+			INSERT INTO Conductor(Cedula, Nombre, Apellido, Telefono, Fecha_de_nacimiento, Tipo_de_sangre, Tipo_de_licencia)
+			VALUES(@cedula, @nombre, @apellido,@telefono, @fechaNac, @tipoSangre, @tipoLicencia)
+			SET @MsgSuccess='CONDUCTOR REGISTRADO EXITOSAMENTE'
+			COMMIT TRAN--CONFIRMACION DE LA TRANSACCION
+		END TRY
+		BEGIN CATCH
+			SET @MsgError= 'OCURRIO UN ERROR INESPERADO, INTENTE NUEVAMENTE'--MENSAJE EN CASO DE ERROR DE REGISTRO
+			ROLLBACK TRAN--CANCELACION DE LA TRANSACCION
+		END CATCH
+	END
+	ELSE
+	BEGIN
+		SET @MsgError='YA EXISTE UN CONDUCTOR REGISTRADO CON ESTOS DATOS'--MENSAJE EN CASO DE QUE YA EXISTA UN CONDUCTOR REGISTRADO CON ESOS DATOS
+		ROLLBACK TRAN--CANCELACION DE LA TRANSACCION
+	END
+GO
 
 --Procedimiento para actualizar Conductor
-create proc actualizar_conductor
-	@cedula varchar(15),
-	@nombre varchar(30),
-	@apellido varchar(30),
-	@telefono varchar(10),
+ALTER PROC PROC_ACTUALIZAR_CONDUCTOR(
+	@cedula VARCHAR(15),
+	@nombre VARCHAR(30),
+	@apellido VARCHAR(30),
+	@telefono VARCHAR(10),
 	@fechaNac date,
-	@tipoSangre varchar(5),
-	@tipoLicencia varchar(5),
-
-	@MsjExito varchar(50) = '' output,
-	@MsjError varchar(50) = '' output
-as
-begin tran
-if exists(select top 1 Cedula from Conductor where Cedula = @cedula)
-begin
-	update Conductor set Nombre=@nombre,
-	Apellido=@apellido,
-	Telefono=@telefono,
-	Fecha_de_nacimiento=@fechaNac,
-	Tipo_de_sangre=@tipoSangre,
-	Tipo_de_licencia=@tipoLicencia
-	where Cedula=@cedula;
-
-	commit tran
-	set @MsjExito = 'El conductor fue actualizado exitosamente'
-end
-else
-begin
-	rollback tran
-	set @MsjError = 'No existe un coductor con esta cedula'
-end
-go
-
+	@tipoSangre VARCHAR(3),
+	@tipoLicencia VARCHAR(2),
+	@MsgSuccess VARCHAR(50) OUTPUT,
+	@MsgError VARCHAR(50) OUTPUT
+)
+AS
+	IF EXISTS(SELECT Cedula FROM Conductor WHERE Cedula = @cedula)
+	BEGIN
+		BEGIN TRAN
+			BEGIN TRY
+				UPDATE Conductor SET Nombre=@nombre,
+				Apellido=@apellido,
+				Telefono=@telefono,
+				Fecha_de_nacimiento=@fechaNac,
+				Tipo_de_sangre=@tipoSangre,
+				Tipo_de_licencia=@tipoLicencia
+				WHERE Cedula=@cedula;
+				SET @MsgSuccess='DATOS DEL CONDUCTOR ACTUALIZADOS EXITOSAMENTE'
+				COMMIT TRAN
+			END TRY
+			BEGIN CATCH
+				SET @MsgError='ERROR EN LA ACTUALIZACION DE LOS DATOS DEL CONDUCTOR'
+				ROLLBACK TRAN
+			END CATCH
+	END
+	ELSE
+	BEGIN
+		SET @MsgError='NO HAY CONDUCTOR REGISTRADO CON ESE NUMERO DE CÉDULA'
+		ROLLBACK
+	END
+GO
 --Procedimiento para eliminar conductores
-alter proc eliminar_conductor
-	@cedula varchar(15),
+ALTER PROC PROC_ELIMINAR_CONDUCTOR(@Cedula VARCHAR(15),
+	@MsgSuccess VARCHAR(50) OUTPUT,
+	@MsgError VARCHAR(50) OUTPUT)
+AS
+BEGIN
+	BEGIN TRAN
+	IF EXISTS (SELECT * FROM Conductor WHERE cedula = @Cedula)
+	BEGIN
+		BEGIN TRY
+			DELETE FROM Conductor WHERE cedula = @Cedula
+			SET @MsgSuccess='EL CONDUCTOR HA SIDO ELIMINADO EXITOSAMENTE'
+			COMMIT
+		END TRY
+		BEGIN CATCH
+			SET @MsgError='ERROR AL INTENTAR ELIMINAR EL CONDUCTOR SELECCIONADO'
+			ROLLBACK
+		END CATCH
+	END
+	ELSE
+	BEGIN
+		SET @MsgError='EL CONDUCTOR SELECCIONADO NO ESTA REGISTRADO EN LA BASE DE DATOS'
+		ROLLBACK
+	END
+END
+GO
 
-	@MsjExito varchar(50) = '' output,
-	@MsjError varchar(50) = '' output
-as
-begin tran
-if exists(select top 1 Cedula from Conductor where Cedula = @cedula)
-begin
-	delete from Conductor where Cedula=@cedula
+--EJECUTAR HASTA AQUI 
 
-	commit tran
-	set @MsjExito = 'El conductor fue eliminado exitosamente'
-end
-else
-begin
-	rollback tran
-	set @MsjError = 'No existe un coductor con esta cedula'
-end
-go
 
+/*
 -- CONSULTAS --
 
 --Mostrar servicios asignados a un conductor
@@ -124,4 +141,4 @@ begin
 	join Vehiculo V on V.Placa = Conducir.Placa
 	where S.Fecha_de_inicio>=@finit and S.fecha_de_finalizacion <=@fend order by C.Cedula asc
 end
-go
+go*/

@@ -1,6 +1,22 @@
 ---SEMESTRAL DE BASE DE DATOS---
-create database [Steering S.A];
-select * from Conductor
+create database Steering_SA
+/*ON PRIMARY
+(
+	Name ='Steering_SA_DATA',
+	Filename = 'F:\Program Files\Microsft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\Steering_SA.MDF',
+	Size = 10MB,
+	MAXSIZE = 30,
+	FILEGROWTH = 2MB
+)
+LOG ON
+(
+	Name='Steering_SA_LOG',
+	Filename='F:\Program Files\Microsft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\Steering_SA.LDF',
+	Size = 4MB,
+	MAXSIZE = 15,
+	FILEGROWTH = 20%
+)*/
+GO
 --creacion de las tablas
 --tabla conductor--
 create table Conductor(
@@ -9,89 +25,89 @@ create table Conductor(
 	Apellido varchar(30) not null,
 	Telefono varchar(10) not null,
 	Fecha_de_nacimiento date not null,
-	Tipo_de_sangre varchar(5) not null,
+	Tipo_de_sangre varchar(3) not null, --se cambio de 5 a 3
 	Tipo_de_licencia varchar(5) not null
 	primary key (Cedula)
 	);
 
---tabla mantenimiento--
-create table Mantenimiento(
-	Cod_mantenimiento int not null,
-	Descripcion varchar(125) not null,
-	Fecha date,
-	Costo money,
-	primary key(Cod_mantenimiento)
-)
 --Tabla reporte ---
-create table Reporte(
-	Cod_reporte int not null,
-	Descripcion varchar(150) not null,
-	Fecha date not null,
-	responsable varchar(70) not null,
-	primary key(Cod_reporte)
+CREATE TABLE Reporte(
+	Cod_reporte VARCHAR(10),
+	Placa_Vehiculo VARCHAR(10) NOT NULL,
+	Estado VARCHAR(13) NOT NULL DEFAULT 'NO ATENDIDO',
+	Descripcion VARCHAR(150) NOT NULL,
+	Fecha DATE NOT NULL,
+	PRIMARY KEY(Cod_reporte),
+	FOREIGN KEY(Placa_Vehiculo) REFERENCES Vehiculo(Placa)
+)
+--tabla Hacer--
+CREATE TABLE Mantenimiento(
+	Cod_Mantenimiento INT IDENTITY(1,1),
+	Placa_Vehiculo VARCHAR(10) NOT NULL,
+	Cod_reporte VARCHAR(10) NOT NULL,
+	Costo MONEY DEFAULT 0.00,
+	Fecha DATE NOT NULL,
+	Descripcion varchar(225) not null,
+	Estado VARCHAR(15) NOT NULL,
+	PRIMARY KEY(Cod_Mantenimiento),
+	FOREIGN KEY (Placa_Vehiculo) REFERENCES Vehiculo(Placa)
+)
 
-)
---Tabla servicio--
-create table Servicio(
-	Cod_servicio int not null,
-	Cliente varchar(50) not null,
-	Fecha_de_inicio date not null,
-	fecha_de_finalizacion date not null,
-	Descripcion varchar(150) not null,
-	Costo money not null,
-	primary key(Cod_servicio)
-)
+
 --Tabla Vehiculo--
 create table Vehiculo(
 	Placa varchar(10) not null,
-	Motor varchar(50) not null,
-	Tipo varchar(20) not null,
-	Estado varchar(25) not null,
+	Motor varchar(10) not null, --se cambio de 50 a 10
+	Tipo varchar(15) not null, --se cambio de 20 a 15
+	Estado varchar(15) not null, --se cambio a 15
 	pasajero smallint not null,
 	Tipo_de_combustible varchar(10) not null,
 	Color varchar(10) not null,
 	primary key(Placa)
 )
---tabla Conducir
-create table Conducir(
-	Cedula varchar(15) not null,
-	Placa varchar(10) not null,
-	Cod_servicio int not null,
-	foreign key(Cedula) references Conductor(Cedula),
-	foreign key (Placa) references Vehiculo(Placa),
-	foreign key(Cod_servicio) references Servicio(Cod_servicio)
-)
---table Hacer--
-create table Hacer(
-	Placa varchar(10) not null,
-	Cod_mantenimiento int not null,
-	Cod_reporte int not null,
-	foreign key (Placa) references Vehiculo(Placa),
-	foreign key(Cod_mantenimiento) references Mantenimiento(Cod_mantenimiento),
-	foreign key(Cod_reporte) references Reporte(Cod_reporte)
-)
-select *from Conductor
-select *from Vehiculo
-select *from Servicio
-select *from Reporte
-select *from Mantenimiento
-select *from Hacer
-select *from Conducir
---INSERCION DE ALMENOS 1 DATO
-insert into Conductor values ('70-0000-00000','Carlos','Escobar','8888-8888','1998-05-08','B-','C')
-insert into Vehiculo values ('ER02','4LL','Sedan','Disponible',2,'95','Azul')
-insert into Servicio values (67,'Jatech','2021-07-21','2021-07-19','Transporte de empleados',35.00)
-insert into Reporte values (25,'Fuga de aceite','2021-07-19','Javier Rodriguez')
-insert into Mantenimiento values(36,'Sellado de fuga','2021-07-19',24.00)
-insert into Conducir values('70-0000-00000','ER02',67)
-insert into Hacer values('ER02',36,25)
---ACTUALIZACION
-update Conductor set Apellido='Arrosemena' where Cedula='70-0000-00000'
---Eliminacion
-delete from Conductor where Cedula='70-0000-00000'
 
---ACTUALIZAR DATOS CONDUCTOR
-exec actualizar_conductor '70-0000-00000','José','Barria','8888-8888','1998-05-08','B-','D'
---Eliminar registro conductor
-delete from Conducir where Cedula='70-0000-00000'
-delete from Conductor where Cedula='70-0000-00000'
+
+/*MODIFICACION DEL LA BASE DE DATOS 24-9-21 
+MODIFICACION DE RELACION ENTRE CONDUCTORES, SERVICIOS Y VEHICULOS
+SE MODIFICARA TAMBIEN LA TABLA SERVICIOS PARA SER TIPOS DE SERVICIOS
+LA RELACION PASARA A LLAMARSE SERVICIOS*/
+
+GO
+--CREACION DE LA TABLA TIPO DE SERVICIOS
+CREATE TABLE Tipo_servicios(
+	Cod_tipo_servicio INT NOT NULL,
+	Nombre_servicio VARCHAR(40) NOT NULL,
+	Costo_servicio MONEY NOT NULL,
+	Descripcion_servicio VARCHAR(175)DEFAULT(''),
+	PRIMARY KEY (Cod_tipo_servicio)
+);
+GO
+
+--CREACION DE LA TABLA SERVICIO
+CREATE TABLE Servicio(
+	Cod_Servicio INT IDENTITY(1,1),
+	Cod_tipo_servicio INT NOT NULL,
+	Cedula_Conductor VARCHAR(15) NOT NULL,
+	Placa VARCHAR(10) NOT NULL,
+	Cedula_Cliente VARCHAR(15) NOT NULL,
+	Fecha_inicio DATE NOT NULL,
+	Fecha_finalizacion DATE NOT NULL,
+	Monto_Total_Servicio MONEY NOT NULL,
+	PRIMARY KEY (Cod_Servicio),
+	FOREIGN KEY(Cod_tipo_servicio) REFERENCES Tipo_servicios(Cod_tipo_servicio),
+	FOREIGN KEY (Cedula_Conductor) REFERENCES Conductor(Cedula),
+	FOREIGN KEY(Placa) REFERENCES Vehiculo(Placa),
+	FOREIGN KEY(Cedula_Cliente) REFERENCES TB_Cliente(Cedula_Cliente)
+);
+GO
+--CREACION DE LA TABLA CLIENTES
+CREATE TABLE TB_Cliente(
+	Cedula_Cliente VARCHAR(15) NOT NULL,
+	Nombre_Cliente VARCHAR(35) NOT NULL,
+	Apellido_Cliente VARCHAR(35) NOT NULL,
+	Fecha_Nacimiento_Cliente DATE NOT NULL,
+	Telefono_Cliente VARCHAR(15)NOT NULL,
+	Direccion_CLiente VARCHAR(65) NOT NULL,
+	PRIMARY KEY (Cedula_Cliente)
+);
+GO
