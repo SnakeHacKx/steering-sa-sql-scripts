@@ -19,17 +19,17 @@ BEGIN TRAN
 		BEGIN TRY--INTENTAR INGRESAR LOS DATOS A LA TABLA 
 			INSERT INTO Conductor(Cedula, Nombre, Apellido, Telefono, Fecha_de_nacimiento, Tipo_de_sangre, Tipo_de_licencia)
 			VALUES(@cedula, @nombre, @apellido,@telefono, @fechaNac, @tipoSangre, @tipoLicencia)
-			SET @MsgSuccess='CONDUCTOR REGISTRADO EXITOSAMENTE'
+			SET @MsgSuccess='Conductor registrado correctamente.'
 			COMMIT TRAN--CONFIRMACION DE LA TRANSACCION
 		END TRY
 		BEGIN CATCH
-			SET @MsgError= 'OCURRIO UN ERROR INESPERADO, INTENTE NUEVAMENTE'--MENSAJE EN CASO DE ERROR DE REGISTRO
+			SET @MsgError= 'Ocurrió un errror inesperado al intentar registrar el conductor, inténtelo nuevamente'--MENSAJE EN CASO DE ERROR DE REGISTRO
 			ROLLBACK TRAN--CANCELACION DE LA TRANSACCION
 		END CATCH
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='YA EXISTE UN CONDUCTOR REGISTRADO CON ESTOS DATOS'--MENSAJE EN CASO DE QUE YA EXISTA UN CONDUCTOR REGISTRADO CON ESOS DATOS
+		SET @MsgError='Ya existe un conductor registrado con estos datos'--MENSAJE EN CASO DE QUE YA EXISTA UN CONDUCTOR REGISTRADO CON ESOS DATOS
 		ROLLBACK TRAN--CANCELACION DE LA TRANSACCION
 	END
 GO

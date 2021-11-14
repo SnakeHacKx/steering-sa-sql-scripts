@@ -18,12 +18,12 @@ BEGIN TRAN
 	BEGIN
 		INSERT INTO TB_Cliente(Cedula_Cliente,Nombre_Cliente,Apellido_Cliente,Fecha_Nacimiento_Cliente,Telefono_Cliente,Direccion_CLiente)
 		VALUES(@Cedula_Cliente,@Nombre_Cliente,@Apellido_Cliente,@Fecha_Nacimiento_Cliente,@Telefono_Cliente,@Direccion_Cliente)
-		SET @MsgSuccess = 'CLIENTE REGISTRADO EXITOSAMENTE'
+		SET @MsgSuccess = 'Cliente registrado correctamente.'
 		COMMIT
 	END
 	ELSE
 	BEGIN
-		SET @MsgError= 'YA EXISTE UN CLIENTE REGISTRADO CON EL NUMERO DE CEDULA INGRESADO'
+		SET @MsgError= 'Ya existe un cliente registrado con estos datos'
 		ROLLBACK
 	END
 
