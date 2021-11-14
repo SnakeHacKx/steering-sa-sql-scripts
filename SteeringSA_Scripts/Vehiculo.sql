@@ -7,8 +7,8 @@ ALTER PROC PROC_REGISTRAR_VEHICULO(
 	@pasajero smallint,
 	@Tipo_de_combustible varchar(10),
 	@Color varchar(10),
-	@MsgSuccess VARCHAR(50) OUTPUT,
-	@MsgError VARCHAR(50) OUTPUT
+	@MsgSuccess VARCHAR(50) = '' OUTPUT,
+	@MsgError VARCHAR(50) = '' OUTPUT
 )
 AS
 BEGIN TRAN
@@ -16,18 +16,18 @@ BEGIN TRAN
 	BEGIN
 		BEGIN TRY--INTENTAR INGRESAR LOS DATOS A LA TABLA 
 			INSERT INTO Vehiculo (Placa,Motor,Tipo,Estado,pasajero,Tipo_de_combustible,Color)
-			VALUES(@Placa,@Motor,@Tipo,'DISPONIBLE',@pasajero,@Tipo_de_combustible,@Color)
-			SET @MsgSuccess='VEHICULO REGISTRADO CORRECTAMENTE'
+			VALUES(@Placa,@Motor,@Tipo,'Disponible',@pasajero,@Tipo_de_combustible,@Color)
+			SET @MsgSuccess='Vehículo registrado correctamente.'
 			COMMIT TRAN--CONFIRMACION DE LA TRANSACCION
 		END TRY
 		BEGIN CATCH
-			SET @MsgError='OCURRIO UN ERROR INESPERADO AL INTENTAR REGISTRAR EL VEHICULO, INTENTE NUEVAMENTE'--MENSAJE EN CASO DE ERROR DE REGISTRO
+			SET @MsgError='Ocurrió un errror inesperado al intentar registrar el vehículo, inténtelo nuevamente'--MENSAJE EN CASO DE ERROR DE REGISTRO
 			ROLLBACK TRAN--CANCELACION DE LA TRANSACCION
 		END CATCH
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='YA EXISTE UN VEHICULO REGISTRADO CON ESTOS DATOS'--MENSAJE EN CASO DE QUE YA EXISTA UN VEHICULO REGISTRADO CON ESOS DATOS
+		SET @MsgError='Ya existe un vehículo registrado con estos datos'--MENSAJE EN CASO DE QUE YA EXISTA UN VEHICULO REGISTRADO CON ESOS DATOS
 		ROLLBACK
 	END
 GO

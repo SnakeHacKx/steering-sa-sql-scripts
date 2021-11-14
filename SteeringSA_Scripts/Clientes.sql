@@ -8,8 +8,8 @@ ALTER PROC PROC_REGISTRAR_CLIENTE(
 @Fecha_Nacimiento_Cliente DATE,
 @Telefono_Cliente VARCHAR(15),
 @Direccion_Cliente VARCHAR(65),
-@MsgSuccess VARCHAR(50) OUTPUT,
-@MsgError VARCHAR(50) OUTPUT
+@MsgSuccess VARCHAR(50) = '' OUTPUT,
+@MsgError VARCHAR(50) = '' OUTPUT
 )
 AS
 BEGIN

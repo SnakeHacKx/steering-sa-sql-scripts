@@ -8,8 +8,8 @@ ALTER PROC PROC_REGISTRAR_CONDUCTOR(
 	@fechaNac date,
 	@tipoSangre VARCHAR(3),
 	@tipoLicencia VARCHAR(2),
-	@MsgSuccess VARCHAR(50) OUTPUT,
-	@MsgError VARCHAR(50) OUTPUT
+	@MsgSuccess VARCHAR(50) = '' OUTPUT,
+	@MsgError VARCHAR(50) = '' OUTPUT
 )
 AS
 -- Validar si el conductor existe
