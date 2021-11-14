@@ -55,9 +55,9 @@ CREATE TABLE Mantenimiento(
 
 
 --Tabla Vehiculo--
-create table Vehiculo(
+Create table Vehiculo(
 	Placa varchar(10) not null,
-	Motor varchar(10) not null, --se cambio de 50 a 10
+	Modelo_vehiculo varchar(10) not null, --se cambio de 50 a 10
 	Tipo varchar(15) not null, --se cambio de 20 a 15
 	Estado varchar(15) not null, --se cambio a 15
 	pasajero smallint not null,
@@ -111,3 +111,4 @@ CREATE TABLE TB_Cliente(
 	PRIMARY KEY (Cedula_Cliente)
 );
 GO
+

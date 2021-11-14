@@ -8,8 +8,8 @@ ALTER PROC PROC_REGISTRAR_CONDUCTOR(
 	@fechaNac date,
 	@tipoSangre VARCHAR(3),
 	@tipoLicencia VARCHAR(2),
-	@MsgSuccess VARCHAR(50) OUTPUT,
-	@MsgError VARCHAR(50) OUTPUT
+	@MsgSuccess VARCHAR(50)='' OUTPUT,
+	@MsgError VARCHAR(50)='' OUTPUT
 )
 AS
 -- Validar si el conductor existe
@@ -43,8 +43,8 @@ ALTER PROC PROC_ACTUALIZAR_CONDUCTOR(
 	@fechaNac date,
 	@tipoSangre VARCHAR(3),
 	@tipoLicencia VARCHAR(2),
-	@MsgSuccess VARCHAR(50) OUTPUT,
-	@MsgError VARCHAR(50) OUTPUT
+	@MsgSuccess VARCHAR(50)='' OUTPUT,
+	@MsgError VARCHAR(50)='' OUTPUT
 )
 AS
 	IF EXISTS(SELECT Cedula FROM Conductor WHERE Cedula = @cedula)
@@ -74,8 +74,8 @@ AS
 GO
 --Procedimiento para eliminar conductores
 ALTER PROC PROC_ELIMINAR_CONDUCTOR(@Cedula VARCHAR(15),
-	@MsgSuccess VARCHAR(50) OUTPUT,
-	@MsgError VARCHAR(50) OUTPUT)
+	@MsgSuccess VARCHAR(50)='' OUTPUT,
+	@MsgError VARCHAR(50)='' OUTPUT
 AS
 BEGIN
 	BEGIN TRAN
@@ -105,10 +105,47 @@ GO
 ALTER PROC PROC_LISTAR_TODOS_CONDUCTORES
 AS
 BEGIN
-	SELECT Cedula AS 'N° Cedula',Nombre+' '+Apellido AS 'Nombre completo',Telefono AS 'Contacto',Fecha_de_nacimiento AS 'Fecha de nacimiento',YEAR(GETDATE()) -YEAR(Fecha_de_nacimiento)
-	AS 'Edad',Tipo_de_sangre AS 'Grupo sanguineo',Tipo_de_licencia AS 'Lincencia'
-	FROM Conductor
-	ORDER BY Nombre
+	SELECT *FROM V_GENERALES_DE_CONDUCTOR
+	ORDER BY [Nombre completo]
 END
 GO
+
+
+--BUSCAR CONDUCTOR POR NOMBRE
+ALTER PROC PROC_BUSCAR_NOMBRE_CONDUCTOR(
+	@Nombre VARCHAR(70),
+	@MsgError VARCHAR(50)='' OUTPUT
+)
+AS
+BEGIN
+	IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE [Nombre completo] LIKE '%'+@Nombre+'%')
+	BEGIN
+		SELECT *FROM V_GENERALES_DE_CONDUCTOR
+		WHERE [Nombre completo] LIKE '%'+@Nombre+'%'
+	END
+	ELSE
+		SET @MsgError='CONDUCTOR NO ENCONTRADO'
+END
+GO
+
+--BUSCAR CONDUCTOR POR CEDULA 
+CREATE PROC PROC_BUSCAR_CEDULA_CONDUCTOR(
+	@Cedula VARCHAR(70),
+	@MsgError VARCHAR(50)='' OUTPUT
+)
+AS
+BEGIN
+	IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE [N° Cedula]=@Cedula)
+	BEGIN
+		SELECT *FROM V_GENERALES_DE_CONDUCTOR
+		WHERE [N° Cedula]=@Cedula
+	END
+	ELSE
+		SET @MsgError='CONDUCTOR NO ENCONTRADO'
+END
+GO
+
+
+
+
 

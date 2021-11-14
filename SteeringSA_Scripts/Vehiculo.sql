@@ -2,7 +2,7 @@
 --AGREGAR UN NUEVO VEHICULO
 ALTER PROC PROC_REGISTRAR_VEHICULO(
 	@Placa varchar(10),
-	@Motor varchar(10),
+	@Modelo_vehiculo varchar(10),
 	@Tipo varchar(15),
 	@pasajero smallint,
 	@Tipo_de_combustible varchar(10),
@@ -15,8 +15,8 @@ BEGIN TRAN
 	IF NOT EXISTS(SELECT * FROM Vehiculo WHERE Placa=@Placa)
 	BEGIN
 		BEGIN TRY--INTENTAR INGRESAR LOS DATOS A LA TABLA 
-			INSERT INTO Vehiculo (Placa,Motor,Tipo,Estado,pasajero,Tipo_de_combustible,Color)
-			VALUES(@Placa,@Motor,@Tipo,'DISPONIBLE',@pasajero,@Tipo_de_combustible,@Color)
+			INSERT INTO Vehiculo (Placa,Modelo_vehiculo,Tipo,Estado,pasajero,Tipo_de_combustible,Color)
+			VALUES(@Placa,@Modelo_vehiculo,@Tipo,'DISPONIBLE',@pasajero,@Tipo_de_combustible,@Color)
 			SET @MsgSuccess='VEHICULO REGISTRADO CORRECTAMENTE'
 			COMMIT TRAN--CONFIRMACION DE LA TRANSACCION
 		END TRY
@@ -35,7 +35,7 @@ GO
 --PROCEDIMIENTO PARA ACTUALIZAR DATOS DE UN VEHICULO
 ALTER PROC PROC_ACTUALIZAR_DATOS_VEHICULO(
 	@Placa varchar(10),
-	@Motor varchar(10),
+	@Modelo_vehiculo varchar(10),
 	@Tipo varchar(15),
 	@pasajero smallint,
 	@Tipo_de_combustible varchar(10),
@@ -50,7 +50,7 @@ BEGIN TRAN
 		BEGIN
 			BEGIN TRY
 				UPDATE Vehiculo SET
-				Motor=@Motor,
+				Modelo_vehiculo=@Modelo_vehiculo,
 				Tipo=@Tipo,
 				pasajero=@pasajero,
 				Tipo_de_combustible=@Tipo_de_combustible,
@@ -141,10 +141,26 @@ END
 GO
 
 --MOSTRAR TODOS
-CREATE PROC PROC_LISTAR_TODOS_VEHICULOS
+ALTER PROC PROC_LISTAR_TODOS_VEHICULOS
 AS
 BEGIN
-	SELECT Placa AS 'Placa de vehiculo',Tipo,Motor,pasajero AS 'Capacidad',Color,Tipo_de_combustible AS 'Tipo de combustible' FROM Vehiculo
+	SELECT Placa AS 'Placa de vehiculo',Tipo,Modelo_vehiculo AS 'Modelo de Vehiculo',pasajero AS 'Capacidad',Color,Tipo_de_combustible AS 'Tipo de combustible',Estado FROM Vehiculo
 	ORDER BY [Placa de vehiculo]
+END
+GO
+
+--BUSCAR POR PLACA
+CREATE PROC PROC_BUSCAR_VEHICULO_POR_PLACA(
+	@Placa varchar(10),
+	@MsgError VARCHAR(50)='' OUTPUT
+)
+AS
+BEGIN
+	IF EXISTS(SELECT * FROM V_GENERALES_DE_VEHICULO WHERE [Placa de vehiculo]=@Placa)
+	BEGIN
+		SELECT * FROM V_GENERALES_DE_VEHICULO WHERE [Placa de vehiculo]=@Placa
+	END
+	ELSE
+		SET @MsgError='VEHICULO NO ENCONTRADO'
 END
 GO

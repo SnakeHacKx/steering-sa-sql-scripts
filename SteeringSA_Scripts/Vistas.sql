@@ -21,10 +21,42 @@ AS
 GO
 
 --VISTA DE GENERALES DEL MANTENIMIENTO (RELACIONA LAS TABLAS ASOCIADAS A UN MANTENIMIENTO)
-CREATE VIEW V_GENERALES_DE_MANTENIMIENTO
+ALTER VIEW V_GENERALES_DE_MANTENIMIENTO
 AS
-	SELECT M.Cod_Mantenimiento AS 'Codigo de mantenimiento',V.Placa AS 'Placa de vehiculo',V.Tipo AS 'Tipo de vehiculo',V.Motor AS 'Motor',
+	SELECT M.Cod_Mantenimiento AS 'Codigo de mantenimiento',V.Placa AS 'Placa de vehiculo',V.Tipo AS 'Tipo de vehiculo',V.Modelo_vehiculo AS 'Modelo de vehiculo',
 	M.Cod_reporte AS 'Reporte',M.Descripcion,M.Fecha AS 'Fecha de realizacion',M.Costo AS 'Costo total',M.Estado AS 'Estado Actual'
 	FROM Mantenimiento M
 	INNER JOIN Vehiculo V ON V.Placa = M.Placa_Vehiculo
+GO
+
+--VISTA GENERALES DE CLIENTE
+CREATE VIEW V_GENERALES_DE_CLIENTE
+AS
+	SELECT Cedula_Cliente AS 'N° Cedula',Nombre_Cliente+' '+Apellido_Cliente AS 'Nombre completo',Fecha_Nacimiento_Cliente AS 'Fecha de nacimiento',YEAR(GETDATE())-YEAR(Fecha_Nacimiento_Cliente) AS 'Edad',
+	Telefono_Cliente AS 'Telefono',Direccion_CLiente AS 'Direccion' FROM TB_Cliente
+GO
+--VISTA GENERALES DE CONDUCTOR
+CREATE VIEW V_GENERALES_DE_CONDUCTOR
+AS
+	SELECT Cedula AS 'N° Cedula',Nombre+' '+Apellido AS 'Nombre completo',Telefono AS 'Contacto',Fecha_de_nacimiento AS 'Fecha de nacimiento',YEAR(GETDATE()) -YEAR(Fecha_de_nacimiento)
+	AS 'Edad',Tipo_de_sangre AS 'Grupo sanguineo',Tipo_de_licencia AS 'Lincencia'
+	FROM Conductor
+GO
+--VISTA DE GENERALES DE VEHICULO
+CREATE VIEW V_GENERALES_DE_VEHICULO
+AS
+	SELECT Placa AS 'Placa de vehiculo',Tipo,Modelo_vehiculo AS 'Modelo de Vehiculo',pasajero AS 'Capacidad',Color,Tipo_de_combustible AS 'Tipo de combustible',Estado FROM Vehiculo
+GO
+
+--VISTA DE GENERALES DE REPORTE
+CREATE VIEW V_GENERALES_DE_REPORTE
+AS
+	SELECT Cod_reporte AS 'Codigo de Reporte',Placa_Vehiculo as 'Placa del vehiculo',Descripcion,Fecha AS 'Fecha de reporte' FROM Reporte
+GO
+
+--VISTA GENERAL DE TIPO DE SERVICIO
+CREATE VIEW V_GENERALES_DE_TIPO_DE_SERVICIO
+AS
+	SELECT Cod_tipo_servicio AS 'Codigo',Nombre_servicio AS 'Nombre del servicio',Descripcion_servicio AS 'Descripcion',
+	Costo_servicio AS 'Costo diario' FROM Tipo_servicios
 GO

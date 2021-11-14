@@ -212,4 +212,24 @@ BEGIN
 	[Fecha de finalizacion],DATEDIFF(DAY,[Fecha de inicio],[Fecha de finalizacion]) AS 'Duracion',[Costo total]
 	FROM V_GENERALES_DE_SERVICIO
 END
+GO
+
+--BUSCAR POR CODIGO DE SERVICIO
+CREATE PROC PROC_BUSCAR_CODIGO_SERVICIO(
+	@Codigo_Servicio INT,
+	@MsgError VARCHAR(50) ='' OUTPUT
+)
+AS
+BEGIN
+	IF EXISTS(SELECT *FROM Servicio WHERE Cod_Servicio=@Codigo_Servicio)
+	BEGIN
+		SELECT Codigo,[Tipo de servicio],Descripcion,Cliente,Conductor,[Cedula de Conductor],[Placa de vehiculo],[Tipo de vehiculo],[Color de Vehiculo],[Fecha de inicio],
+		[Fecha de finalizacion],DATEDIFF(DAY,[Fecha de inicio],[Fecha de finalizacion]) AS 'Duracion',[Costo total]
+		FROM V_GENERALES_DE_SERVICIO
+	END
+	ELSE
+		SET @MsgError ='SERVICIO NO ENCONTRADO'
+END
+GO
+exec PROC_BUSCAR_CODIGO_SERVICIO '36'
 
