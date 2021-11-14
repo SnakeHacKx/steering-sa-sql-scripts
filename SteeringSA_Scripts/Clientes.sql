@@ -8,8 +8,8 @@ ALTER PROC PROC_REGISTRAR_CLIENTE(
 @Fecha_Nacimiento_Cliente DATE,
 @Telefono_Cliente VARCHAR(15),
 @Direccion_Cliente VARCHAR(65),
-@MsgSuccess VARCHAR(50) OUTPUT,
-@MsgError VARCHAR(50) OUTPUT
+@MsgSuccess VARCHAR(50) ='' OUTPUT,
+@MsgError VARCHAR(50) ='' OUTPUT
 )
 AS
 BEGIN
@@ -38,8 +38,8 @@ ALTER PROC PROC_ACTUALIZAR_DATOS_CLIENTE(
 @Fecha_Nacimiento_Cliente DATE,
 @Telefono_Cliente VARCHAR(15),
 @Direccion_Cliente VARCHAR(65),
-@MsgSuccess VARCHAR(50) OUTPUT,
-@MsgError VARCHAR(50) OUTPUT
+@MsgSuccess VARCHAR(50)='' OUTPUT,
+@MsgError VARCHAR(50)='' OUTPUT
 )
 AS
 BEGIN
@@ -72,8 +72,8 @@ GO
 
 --PROCEDIMIENTO PARA ELIMINAR CLIENTES
 ALTER PROC PROC_ELIMINAR_CLIENTE(@Cedula_Cliente VARCHAR(15),
-@MsgSuccess VARCHAR(50) OUTPUT,
-@MsgError VARCHAR(50) OUTPUT)
+@MsgSuccess VARCHAR(50)='' OUTPUT,
+@MsgError VARCHAR(50)='' OUTPUT)
 AS
 BEGIN
 BEGIN TRAN
@@ -94,6 +94,16 @@ BEGIN TRAN
 			SET @MsgError='LA CEDULA DEL CLIENTE INGRESADA NO CORRESPONDE A NINGUN CLIENTE REGISTRADO EN LA BASE DE DATOS'
 			ROLLBACK
 		END
+END
+GO
+
+--MOSTRAR TODOS LOS CLIENTES
+ALTER PROC PROC_LISTAR_TODOS_CLIENTES
+AS
+BEGIN
+	SELECT Cedula_Cliente AS 'N° Cedula',Nombre_Cliente+' '+Apellido_Cliente AS 'Nombre completo',YEAR(GETDATE())-YEAR(Fecha_Nacimiento_Cliente) AS 'Edad',
+	Telefono_Cliente AS 'Telefono',Direccion_CLiente AS 'Direccion' FROM TB_Cliente
+	ORDER BY [Nombre completo]
 END
 GO
 

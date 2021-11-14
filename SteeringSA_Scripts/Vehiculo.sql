@@ -7,8 +7,8 @@ ALTER PROC PROC_REGISTRAR_VEHICULO(
 	@pasajero smallint,
 	@Tipo_de_combustible varchar(10),
 	@Color varchar(10),
-	@MsgSuccess VARCHAR(50) OUTPUT,
-	@MsgError VARCHAR(50) OUTPUT
+	@MsgSuccess VARCHAR(50) ='' OUTPUT,
+	@MsgError VARCHAR(50)='' OUTPUT
 )
 AS
 BEGIN TRAN
@@ -40,8 +40,8 @@ ALTER PROC PROC_ACTUALIZAR_DATOS_VEHICULO(
 	@pasajero smallint,
 	@Tipo_de_combustible varchar(10),
 	@Color varchar(10),
-	@MsgSuccess VARCHAR(50) OUTPUT,
-	@MsgError VARCHAR(50) OUTPUT
+	@MsgSuccess VARCHAR(50)='' OUTPUT,
+	@MsgError VARCHAR(50)='' OUTPUT
 )
 AS
 BEGIN
@@ -115,8 +115,8 @@ END
 GO
 --PROCIDIMIENTO PARA ELIMINAR VEHICULOS
 ALTER PROC PROC_ELIMINAR_VEHICULO(@Placa_Vehiculo VARCHAR(10),
-	@MsgSuccess VARCHAR(50) OUTPUT,
-	@MsgError VARCHAR(50) OUTPUT)
+	@MsgSuccess VARCHAR(50)='' OUTPUT,
+	@MsgError VARCHAR(50) ='' OUTPUT)
 AS
 BEGIN
 BEGIN TRAN
@@ -140,3 +140,11 @@ BEGIN TRAN
 END
 GO
 
+--MOSTRAR TODOS
+CREATE PROC PROC_LISTAR_TODOS_VEHICULOS
+AS
+BEGIN
+	SELECT Placa AS 'Placa de vehiculo',Tipo,Motor,pasajero AS 'Capacidad',Color,Tipo_de_combustible AS 'Tipo de combustible' FROM Vehiculo
+	ORDER BY [Placa de vehiculo]
+END
+GO
