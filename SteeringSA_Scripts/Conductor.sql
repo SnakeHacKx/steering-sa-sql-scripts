@@ -99,53 +99,6 @@ BEGIN
 END
 GO
 
-<<<<<<< HEAD
---EJECUTAR HASTA AQUI 
-
-
-CREATE PROC Select_DriverAll
-AS
-BEGIN
-	SELECT
-	Cedula AS 'Cédula',
-	Nombre AS 'Nombre',
-	Apellido AS 'Apellido',
-	Fecha_de_nacimiento AS 'Fecha de Nacimiento',
-	Tipo_de_sangre AS 'Tipo de Sangre',
-	Tipo_de_licencia AS 'Tipo de Licencia'
-	FROM Conductor
-	ORDER BY Apellido ASC
-END
-GO
-
-
-/*
--- CONSULTAS --
-
---Mostrar servicios asignados a un conductor
-create proc ver_servicios_conductor
-@cedula varchar(15)
-as
-begin
-	select S.Cod_servicio,S.Cliente,S.Fecha_de_inicio as[Fecha Inicio],
-	S.fecha_de_finalizacion as [Fecha Final],S.Descripcion,Costo,Conducir.Placa as [vehiculo Asignado] from Conducir
-	join Conductor C on Conducir.Cedula=C.Cedula
-	join Servicio S on Conducir.Cod_servicio=S.Cod_servicio
-	where Conducir.Cedula=@cedula order by S.Cod_servicio asc
-end
-go
-
---Mostrar los conductores deacuerdo a la licencia
-create proc ver_por_licencia
-@tipoLicencia varchar(5)
-as
-begin
-	select * from Conductor where Tipo_de_licencia=@tipoLicencia order by Cedula asc
-end
-go
-=======
---CONSULTAS REFERENTES A CONDUCTORES
->>>>>>> 3302b4c64af6297136fac1523df609b0be24c9e0
 
 --MOSTRAR TODOS
 ALTER PROC PROC_LISTAR_TODOS_CONDUCTORES
