@@ -3,6 +3,18 @@
   <Items>
     <LogicalFolder Name="Connections" Type="2" Sorted="true">
       <Items>
+        <ConnectionNode Name="(local)\SNAKEHACK_SERVER:DESKTOP-230OKFM\SnakeHacKx">
+          <Created>2021-11-05T22:36:55.2302959-05:00</Created>
+          <Type>SQL</Type>
+          <Server>(local)\SNAKEHACK_SERVER</Server>
+          <UserName />
+          <Authentication>Windows Authentication</Authentication>
+          <InitialDB />
+          <LoginTimeout>30</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
         <ConnectionNode Name="(local)\SNAKEHACK_SERVER:sa">
           <Created>2021-08-29T13:27:17.5609145-05:00</Created>
           <Type>SQL</Type>
@@ -19,6 +31,12 @@
     </LogicalFolder>
     <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
+        <FileNode Name="Conductor.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local)\SNAKEHACK_SERVER:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>(local)\SNAKEHACK_SERVER</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Conductor.sql</FullPath>
+        </FileNode>
         <FileNode Name="Proc_Delete.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local)\SNAKEHACK_SERVER:False:sa</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>(local)\SNAKEHACK_SERVER</AssociatedConnSrvName>
@@ -26,9 +44,9 @@
           <FullPath>Proc_Delete.sql</FullPath>
         </FileNode>
         <FileNode Name="Proc_RadioButtons.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local)\SNAKEHACK_SERVER:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local)\SNAKEHACK_SERVER:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>(local)\SNAKEHACK_SERVER</AssociatedConnSrvName>
-          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <AssociatedConnUserName />
           <FullPath>Proc_RadioButtons.sql</FullPath>
         </FileNode>
         <FileNode Name="Proc_Update.sql">
@@ -38,10 +56,16 @@
           <FullPath>Proc_Update.sql</FullPath>
         </FileNode>
         <FileNode Name="Tablas.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local)\SNAKEHACK_SERVER:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local)\SNAKEHACK_SERVER:True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>(local)\SNAKEHACK_SERVER</AssociatedConnSrvName>
-          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <AssociatedConnUserName />
           <FullPath>Tablas.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Vehiculo.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local)\SNAKEHACK_SERVER:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>(local)\SNAKEHACK_SERVER</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Vehiculo.sql</FullPath>
         </FileNode>
       </Items>
     </LogicalFolder>
