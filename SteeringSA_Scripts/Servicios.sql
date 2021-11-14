@@ -1,6 +1,5 @@
 --RELACION DE ASIGNACION DE SERVICIOS-----
 --REGISTRAR SERVICIO
-SELECT *FROM SERVICIO
 GO
 ALTER PROC PROC_REGISTRAR_SERVICIO(
 @Codigo_Tipo_servicio int, 
@@ -9,8 +8,8 @@ ALTER PROC PROC_REGISTRAR_SERVICIO(
 @Placa_Vehiculo varchar(10),
 @F_Inicio datetime,
 @F_Final datetime,
-@MsgSuccess VARCHAR(50) OUTPUT,
-@MsgError VARCHAR(50) OUTPUT
+@MsgSuccess VARCHAR(50) ='' OUTPUT,
+@MsgError VARCHAR(50) ='' OUTPUT
 )
 AS
 BEGIN
@@ -75,8 +74,8 @@ ALTER PROC PROC_ACTUALIZAR_DATOS_SERVICIO(
 @Cedula_Cliente VARCHAR(15),
 @Fecha_inicio DATE,
 @Fecha_finalizacion DATE,
-@MsgSuccess VARCHAR(50) OUTPUT,
-@MsgError VARCHAR(50) OUTPUT
+@MsgSuccess VARCHAR(50) ='' OUTPUT,
+@MsgError VARCHAR(50) ='' OUTPUT
 )
 AS
 BEGIN
@@ -126,8 +125,8 @@ END
 GO
 --PROCEDIMIENTO PARA ELIMINAR SERVICIO
 ALTER PROC PROC_ELIMINAR_SERVICIO(@Codigo_Servicio INT,
-@MsgSuccess VARCHAR(50) OUTPUT,
-@MsgError VARCHAR(50) OUTPUT)
+@MsgSuccess VARCHAR(50) ='' OUTPUT,
+@MsgError VARCHAR(50) ='' OUTPUT)
 AS
 BEGIN
 BEGIN TRAN
@@ -205,5 +204,12 @@ END
 GO
 
 
-
+--MOSTRAR TODOS LOS SERVICIOS
+CREATE PROC PROC_LISTAR_TODOS_SERVICIOS
+AS
+BEGIN
+	SELECT Codigo,[Tipo de servicio],Descripcion,Cliente,Conductor,[Cedula de Conductor],[Placa de vehiculo],[Tipo de vehiculo],[Color de Vehiculo],[Fecha de inicio],
+	[Fecha de finalizacion],DATEDIFF(DAY,[Fecha de inicio],[Fecha de finalizacion]) AS 'Duracion',[Costo total]
+	FROM V_GENERALES_DE_SERVICIO
+END
 

@@ -99,6 +99,7 @@ BEGIN
 END
 GO
 
+<<<<<<< HEAD
 --EJECUTAR HASTA AQUI 
 
 
@@ -142,19 +143,18 @@ begin
 	select * from Conductor where Tipo_de_licencia=@tipoLicencia order by Cedula asc
 end
 go
+=======
+--CONSULTAS REFERENTES A CONDUCTORES
+>>>>>>> 3302b4c64af6297136fac1523df609b0be24c9e0
 
+--MOSTRAR TODOS
+ALTER PROC PROC_LISTAR_TODOS_CONDUCTORES
+AS
+BEGIN
+	SELECT Cedula AS 'N° Cedula',Nombre+' '+Apellido AS 'Nombre completo',Telefono AS 'Contacto',Fecha_de_nacimiento AS 'Fecha de nacimiento',YEAR(GETDATE()) -YEAR(Fecha_de_nacimiento)
+	AS 'Edad',Tipo_de_sangre AS 'Grupo sanguineo',Tipo_de_licencia AS 'Lincencia'
+	FROM Conductor
+	ORDER BY Nombre
+END
+GO
 
---Mostrar deacuerdo a los servicios entre fechas
-create proc ver_por_fecha
-@finit date,
-@fend date
-as
-begin
-	select C.Cedula,Nombre,Apellido,C.Telefono,S.Cod_servicio,S.Cliente,S.Fecha_de_inicio as Inicio,
-	S.fecha_de_finalizacion as Final,S.Descripcion,V.Placa as[Vehiculo asignado],V.Tipo,V.Color from Conducir
-	join Conductor C on Conducir.Cedula=C.Cedula
-	join Servicio S on Conducir.Cod_servicio=S.Cod_servicio
-	join Vehiculo V on V.Placa = Conducir.Placa
-	where S.Fecha_de_inicio>=@finit and S.fecha_de_finalizacion <=@fend order by C.Cedula asc
-end
-go*/
