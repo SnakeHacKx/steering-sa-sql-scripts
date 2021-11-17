@@ -232,3 +232,38 @@ BEGIN
 END
 GO
 
+--FILTRO
+CREATE PROC PROC_FILTRO_SERVICIO(
+	@Cedula_Cliente VARCHAR(15) = NULL,
+	@Cedula_Conductor VARCHAR(15) = NULL,
+	@Placa_Vehiculo VARCHAR(10) = NULL,
+	@Tipo_Servicio VARCHAR(40) = NULL,
+	@Tipo_vehiculo VARCHAR(15) = NULL,
+	@Costo_inicial MONEY = NULL,
+	@Costo_final MONEY = NULL,
+	@Fecha_inicial DATE = NULL,
+	@Fecha_final DATE = NULL,
+	@MsgError VARCHAR(50) ='' OUTPUT
+)
+AS
+BEGIN
+	IF(@Fecha_inicial<=@Fecha_final) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL)
+	BEGIN
+		IF (@Costo_inicial<=@Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL)
+		BEGIN
+			SELECT * FROM V_GENERALES_DE_SERVICIO
+			WHERE ([Cedula de Cliente]=@Cedula_Cliente OR @Cedula_Cliente IS NULL)
+				AND([Cedula de Conductor] = @Cedula_Conductor OR @Cedula_Conductor IS NULL)
+				AND([Placa de vehiculo] = @Placa_Vehiculo OR @Placa_Vehiculo IS NULL)
+				AND([Tipo de servicio]=@Tipo_Servicio OR @Tipo_Servicio IS NULL)
+				AND([Tipo de vehiculo] = @Tipo_vehiculo OR @Tipo_vehiculo IS NULL)
+				AND((([Fecha de inicio] BETWEEN @Fecha_inicial AND @Fecha_final)AND([Fecha de finalizacion] BETWEEN @Fecha_inicial AND @Fecha_final)) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
+				AND(([Costo total] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
+		END
+		ELSE
+			SET @MsgError='VERIFIQUE QUE EL RANGO INICIAL DE COSTOS SEA MENOR AL RANGO FINAL'	
+	END
+	ELSE
+		SET @MsgError='INTERVALO DE FECHA NO VALIDO ¡VERIFIQUE LOS VALORES!'
+END
+GO

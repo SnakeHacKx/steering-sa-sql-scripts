@@ -187,3 +187,38 @@ BEGIN
 		SET @MsgError='MANTENIMIENTO NO ENCONTRADO'
 END
 GO
+
+--FILTRO
+ALTER PROC PROC_FILTRO_MANTENIMIENTO(
+	@Costo_inicial MONEY = NULL,
+	@Costo_final MONEY = NULL,
+	@Fecha_inicial DATE = NULL,
+	@Fecha_final DATE = NULL,
+	@Estado VARCHAR(15) = NULL,
+	@Placa_vehiculo VARCHAR(10) = NULL,
+	@Tipo_vehiculo VARCHAR(15) = NULL,
+	@MsgError VARCHAR(50) ='' OUTPUT
+)
+AS
+BEGIN
+	IF(@Fecha_inicial<=@Fecha_final) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL)
+	BEGIN
+		IF (@Costo_inicial<=@Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL)
+		BEGIN
+			SELECT * FROM V_GENERALES_DE_MANTENIMIENTO
+			WHERE (([Costo total] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
+				AND(([Fecha de realizacion] BETWEEN @Fecha_inicial AND @Fecha_final) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
+				AND([Estado Actual]=@Estado OR @Estado IS NULL)
+				AND([Placa de vehiculo]=@Placa_vehiculo OR @Placa_vehiculo IS NULL)
+				AND([Tipo de vehiculo]=@Tipo_vehiculo OR @Tipo_vehiculo IS NULL)
+		END
+		ELSE
+			SET @MsgError='VERIFIQUE QUE EL RANGO INICIAL DE COSTOS SEA MENOR AL RANGO FINAL'	
+	END
+	ELSE
+		SET @MsgError='INTERVALO DE FECHA NO VALIDO ¡VERIFIQUE LOS VALORES!'
+END
+GO
+
+
+

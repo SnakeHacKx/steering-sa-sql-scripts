@@ -141,7 +141,25 @@ BEGIN
 END
 GO
 
-
+--FILTRO
+ALTER PROC PROC_FILTRO_CLIENTE(
+	@Edad_inicial INT =NULL,
+	@Edad_final INT =NULL,
+	@Direccion_cliente VARCHAR(65) =NULL,
+	@MsgError VARCHAR(50)='' OUTPUT
+)
+AS
+BEGIN
+	IF (@Edad_inicial<@Edad_final) OR(@Edad_inicial IS NULL AND @Edad_final IS NULL)
+	BEGIN
+		SELECT * FROM V_GENERALES_DE_CLIENTE
+		WHERE ((Edad BETWEEN @Edad_inicial AND @Edad_final) OR (@Edad_inicial IS NULL AND @Edad_final IS NULL))
+		AND((Direccion LIKE '%'+@Direccion_cliente+'%') OR (@Direccion_cliente IS NULL))
+	END
+	ELSE
+		SET @MsgError='RANGO DE EDAD NO VALIDO ¡VERIFIQUE EL INTERVALO INTRODUCIDO!'
+END
+GO
 
 
 

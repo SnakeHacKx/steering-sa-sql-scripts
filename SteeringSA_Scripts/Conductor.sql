@@ -76,6 +76,7 @@ GO
 ALTER PROC PROC_ELIMINAR_CONDUCTOR(@Cedula VARCHAR(15),
 	@MsgSuccess VARCHAR(50)='' OUTPUT,
 	@MsgError VARCHAR(50)='' OUTPUT
+)
 AS
 BEGIN
 	BEGIN TRAN
@@ -144,7 +145,29 @@ BEGIN
 END
 GO
 
+---FILTROS
+ALTER PROC PROC_FILTAR_EDAD_LICENCIA_CONDUCTOR( --FILTRA POR UN RANGO DE EDAD O POR UN TIPO DE LICENCIA
+	@Tipo_de_licencia VARCHAR(2)=NULL,
+	@Edad_menor INT =NULL,
+	@Edad_mayor INT =NULL,
+	@MsgError VARCHAR(50)='' OUTPUT
+)
+AS
+BEGIN
+	IF @Edad_menor<=@Edad_mayor OR (@Edad_menor IS NULL AND @Edad_mayor IS NULL)
+	BEGIN
+		IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE Licencia =@Tipo_de_licencia OR (Edad BETWEEN @Edad_menor AND @Edad_mayor))
+		BEGIN
+			SELECT *FROM V_GENERALES_DE_CONDUCTOR
+			WHERE (Licencia =@Tipo_de_licencia OR @Tipo_de_licencia IS NULL)--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
+			AND ((Edad BETWEEN @Edad_menor AND @Edad_mayor) OR (@Edad_menor IS NULL AND @Edad_mayor IS NULL))--en caso de que no haya sido seleccionado el parametro como filtro entonces vendra como Null lo que hace que la condicion sea true pero no busca en la base de datos
+		END
+		ELSE
+			SET @MsgError='NO HAY REGISTROS ENCONTRADOS DENTRO DE LOS PARAMETROS DE FILTRADO'
+	END
+	ELSE
+		SET @MsgError='INTERVALO DE EDAD NO VALIDO ¡VERIFIQUE LOS VALORES!'
+END
+GO
 
-
-
-
+EXEC PROC_FILTAR_EDAD_LICENCIA_CONDUCTOR 'D',NULL,NULL

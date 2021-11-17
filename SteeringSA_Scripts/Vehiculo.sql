@@ -164,3 +164,31 @@ BEGIN
 		SET @MsgError='VEHICULO NO ENCONTRADO'
 END
 GO
+
+--FILTRO
+ALTER PROC PROC_FILTRO_VEHICULO(
+	@Modelo_vehiculo varchar(10) =NULL,
+	@Tipo varchar(15)=NULL,
+	@pasajero_init smallint=NULL, --rango inferior
+	@pasajero_top smallint=NULL,	--rango superior
+	@Tipo_de_combustible varchar(10)=NULL,
+	@Estado_vehiculo varchar(15) =NULL,
+	@Color varchar(10)=NULL,
+	@MsgError VARCHAR(50) = '' OUTPUT
+)
+AS
+BEGIN 
+	IF (@pasajero_init<=@pasajero_top) OR (@pasajero_init IS NULL AND @pasajero_top IS NULL)--solo es necesaria la validacion del que el rango sea correcto porque los otros valores estan pre cargados en combo box
+	BEGIN																					--lo que hace que siempre esten correctos
+		SELECT *FROM V_GENERALES_DE_VEHICULO --se accede a los datos generales del vehiculo por medio de la vista
+		WHERE ([Modelo de Vehiculo] =@Modelo_vehiculo OR @Modelo_vehiculo IS NULL)--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
+			AND (Tipo=@Tipo OR @Tipo IS NULL)									--en caso de que no haya sido seleccionado el parametro como filtro entonces vendra como Null lo que hace que la condicion sea true pero no busca en la base de datos
+			AND((Capacidad BETWEEN @pasajero_init AND @pasajero_top) OR (@pasajero_init IS NULL AND @pasajero_top IS NULL ))
+			AND ([Tipo de combustible] = @Tipo_de_combustible OR @Tipo_de_combustible IS NULL)
+			AND (Estado = @Estado_vehiculo OR @Estado_vehiculo IS NULL)
+			AND(Color = @Color OR @Color IS NULL)
+	END
+	ELSE
+		SET @MsgError='INTERVALO DE CANTIDAD DE PASAJEROS NO VALIDO ¡VERIFIQUE LOS VALORES!'
+END
+GO

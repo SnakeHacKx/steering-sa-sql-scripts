@@ -39,7 +39,7 @@ GO
 CREATE VIEW V_GENERALES_DE_CONDUCTOR
 AS
 	SELECT Cedula AS 'N° Cedula',Nombre+' '+Apellido AS 'Nombre completo',Telefono AS 'Contacto',Fecha_de_nacimiento AS 'Fecha de nacimiento',YEAR(GETDATE()) -YEAR(Fecha_de_nacimiento)
-	AS 'Edad',Tipo_de_sangre AS 'Grupo sanguineo',Tipo_de_licencia AS 'Lincencia'
+	AS 'Edad',Tipo_de_sangre AS 'Grupo sanguineo',Tipo_de_licencia AS 'Licencia'
 	FROM Conductor
 GO
 --VISTA DE GENERALES DE VEHICULO
@@ -49,9 +49,9 @@ AS
 GO
 
 --VISTA DE GENERALES DE REPORTE
-CREATE VIEW V_GENERALES_DE_REPORTE
+ALTER VIEW V_GENERALES_DE_REPORTE
 AS
-	SELECT Cod_reporte AS 'Codigo de Reporte',Placa_Vehiculo as 'Placa del vehiculo',Descripcion,Fecha AS 'Fecha de reporte' FROM Reporte
+	SELECT Cod_reporte AS 'Codigo de Reporte',Placa_Vehiculo as 'Placa del vehiculo',Descripcion,Fecha AS 'Fecha de reporte', Estado FROM Reporte
 GO
 
 --VISTA GENERAL DE TIPO DE SERVICIO
