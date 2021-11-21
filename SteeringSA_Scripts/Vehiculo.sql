@@ -17,6 +17,7 @@ BEGIN TRAN
 		BEGIN TRY--INTENTAR INGRESAR LOS DATOS A LA TABLA 
 			INSERT INTO Vehiculo (Placa,Modelo_vehiculo,Tipo,Estado,pasajero,Tipo_de_combustible,Color)
 			VALUES(@Placa,@Modelo_vehiculo,@Tipo,'DISPONIBLE',@pasajero,@Tipo_de_combustible,@Color)
+			EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo Vehiculo'
 			SET @MsgSuccess='VEHICULO REGISTRADO CORRECTAMENTE'
 			COMMIT TRAN--CONFIRMACION DE LA TRANSACCION
 		END TRY
@@ -56,6 +57,7 @@ BEGIN TRAN
 				Tipo_de_combustible=@Tipo_de_combustible,
 				Color=@Color
 				WHERE Placa=@Placa;
+				EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un vehiculo'
 				SET @MsgSuccess='DATOS EL VEHICULO ACTUALIZADOS CORRECTAMENTE'
 				COMMIT TRAN
 			END TRY
@@ -124,6 +126,7 @@ BEGIN TRAN
 	BEGIN
 		BEGIN TRY
 			DELETE FROM Vehiculo WHERE Placa=@Placa_Vehiculo
+			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un vehiculo'
 			SET @MsgSuccess='VEHICULO ELIMINADO CORRECTAMENTE'
 			COMMIT
 		END TRY

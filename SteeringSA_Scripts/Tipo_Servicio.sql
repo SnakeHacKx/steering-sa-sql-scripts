@@ -9,6 +9,7 @@ BEGIN TRAN
 		BEGIN TRY
 			INSERT INTO Tipo_servicios(Cod_tipo_servicio,Nombre_servicio,Costo_servicio,Descripcion_servicio)
 			VALUES(@Codigo,@Nombre,@Costo,@Descripcion)
+			EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo tipo de servicio'
 			SET @MsgSuccess='TIPO DE SERVICIO REGISTRADO EXITOSAMENTE'
 			COMMIT TRAN
 		END TRY
@@ -38,6 +39,7 @@ BEGIN TRAN
 			Costo_servicio=@Costo,
 			Descripcion_servicio=@Descripcion
 			WHERE Cod_tipo_servicio=@Codigo
+			EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un tipo de servicio'
 			SET @MsgSuccess='DATOS DEL TIPO DE SERVICIO ACTUALIZADOS EXITOSAMENTE'
 			COMMIT
 		END TRY
@@ -62,6 +64,7 @@ BEGIN TRAN
 	BEGIN
 		BEGIN TRY
 			DELETE FROM Tipo_servicios WHERE Cod_tipo_servicio=@Codigo_Tipo_Servicio
+			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un tipo de servicio'
 			SET @MsgSuccess = 'TIPO DE SERVICIO ELIMINADO CORRECTAMENTE'
 			COMMIT
 		END TRY

@@ -26,6 +26,7 @@ BEGIN--SI EL MANTENIMIENTO NO CORRESPONDE A NINGUN REPORTE (ES MANTENIMIENTO PRE
 						INSERT INTO Mantenimiento (Placa_Vehiculo,Cod_reporte,Costo,Fecha,Descripcion,Estado)
 						VALUES(@Placa_Vehiculo,@Cod_reporte,@Costo,@Fecha,@Descripcion,@Estado)
 						EXEC PROC_ACTUALIZAR_ESTADO_REPORTES-- SE ACTUALIZA EL ESTADO DEL REPORTE SELECCIONADO PARA EL MANTENIMIENTO
+						EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo mantenimiento'
 						SET @MsgSuccess ='MANTENIMIENTO REGISTRADO EXITOSAMENTE'
 						COMMIT
 					END TRY
@@ -72,6 +73,7 @@ BEGIN
 	BEGIN
 		BEGIN TRY
 			DELETE FROM Mantenimiento WHERE Cod_Mantenimiento=@Cod_Mantenimiento
+			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un mantenimiento'
 			SET @MsgSuccess='SE ELIMINO EL MANTENIMIENTO CORRECTAMENTE'
 			COMMIT
 		END TRY
@@ -123,6 +125,7 @@ BEGIN
 							Estado=@Estado
 							WHERE Cod_Mantenimiento=@Cod_Mantenimiento
 							EXEC PROC_ACTUALIZAR_ESTADO_REPORTES --SE ACTUALIZA EL ESTADO DEL REPORTE SELECCIONADO PARA EL MANTENIMIENTO Y EL QUE FUE REEMPLAZADO
+							EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un mantenimiento'
 							SET @MsgSuccess='DATOS DEL MANTENIMIENTO ACTUALIZADOS CORRECTAMENTE'
 							COMMIT
 						END TRY

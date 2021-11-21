@@ -60,3 +60,10 @@ AS
 	SELECT Cod_tipo_servicio AS 'Codigo',Nombre_servicio AS 'Nombre del servicio',Descripcion_servicio AS 'Descripcion',
 	Costo_servicio AS 'Costo diario' FROM Tipo_servicios
 GO
+
+--VISTAR GENERAL DE HISTORIAL DE ACCIONES SOBRE LA BASE DE DATOS
+CREATE VIEW v_VER_HISTORIAL_DE_ACCIONES
+AS
+	SELECT U.Id_usuario AS 'ID',U.Nombre_usuario AS 'Nombre de Usuario',U.Rol_usuario AS 'Rol de Usuario',H.Accion AS 'Accion realizada',H.Fecha AS 'Fecha de realizacion',H.ID_operacion'ID de accion' FROM TB_Historial H
+	INNER JOIN TB_Usuarios U ON U.Id_usuario=H.Id_usuario
+GO

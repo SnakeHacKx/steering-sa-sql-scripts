@@ -19,6 +19,7 @@ BEGIN TRAN
 		BEGIN TRY--INTENTAR INGRESAR LOS DATOS A LA TABLA 
 			INSERT INTO Conductor(Cedula, Nombre, Apellido, Telefono, Fecha_de_nacimiento, Tipo_de_sangre, Tipo_de_licencia)
 			VALUES(@cedula, @nombre, @apellido,@telefono, @fechaNac, @tipoSangre, @tipoLicencia)
+			EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo conductor'
 			SET @MsgSuccess='Conductor registrado correctamente.'
 			COMMIT TRAN--CONFIRMACION DE LA TRANSACCION
 		END TRY
@@ -58,6 +59,7 @@ AS
 				Tipo_de_sangre=@tipoSangre,
 				Tipo_de_licencia=@tipoLicencia
 				WHERE Cedula=@cedula;
+				EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un conductor'
 				SET @MsgSuccess='DATOS DEL CONDUCTOR ACTUALIZADOS EXITOSAMENTE'
 				COMMIT TRAN
 			END TRY
@@ -84,6 +86,7 @@ BEGIN
 	BEGIN
 		BEGIN TRY
 			DELETE FROM Conductor WHERE cedula = @Cedula
+			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un conductor'
 			SET @MsgSuccess='EL CONDUCTOR HA SIDO ELIMINADO EXITOSAMENTE'
 			COMMIT
 		END TRY

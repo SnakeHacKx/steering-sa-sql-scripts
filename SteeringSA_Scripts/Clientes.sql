@@ -18,6 +18,7 @@ BEGIN TRAN
 	BEGIN
 		INSERT INTO TB_Cliente(Cedula_Cliente,Nombre_Cliente,Apellido_Cliente,Fecha_Nacimiento_Cliente,Telefono_Cliente,Direccion_CLiente)
 		VALUES(@Cedula_Cliente,@Nombre_Cliente,@Apellido_Cliente,@Fecha_Nacimiento_Cliente,@Telefono_Cliente,@Direccion_Cliente)
+		EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo cliente'
 		SET @MsgSuccess = 'Cliente registrado correctamente.'
 		COMMIT
 	END
@@ -54,6 +55,7 @@ BEGIN TRAN
 			Telefono_Cliente=@Telefono_Cliente,
 			Direccion_CLiente=@Direccion_Cliente
 			WHERE Cedula_Cliente=@Cedula_Cliente
+			EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un cliente'
 			SET @MsgSuccess = 'DATOS DEL CLIENTE ACTUALIZADOS EXITOSAMENTE'
 			COMMIT
 		END TRY
@@ -81,6 +83,7 @@ BEGIN TRAN
 		BEGIN
 			BEGIN TRY
 				DELETE FROM TB_Cliente WHERE Cedula_Cliente=@Cedula_Cliente
+				EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un cliente'
 				SET @MsgSuccess='CLIENTE ELIMINADO EXITOSAMENTE'
 				COMMIT
 			END TRY

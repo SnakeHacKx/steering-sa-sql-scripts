@@ -20,6 +20,7 @@ BEGIN
 				BEGIN TRY
 					INSERT INTO Reporte(Cod_reporte,Placa_Vehiculo,Fecha,Descripcion)
 					VALUES(@Cod_Reporte,@Placa_Vehiculo,@Fecha,@Descripcion)
+					EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo Reporte'
 					SET @MsgSuccess='REPORTE REGISTRADO EXITOSAMENTE'
 					COMMIT
 				END TRY
@@ -54,6 +55,7 @@ BEGIN
 	BEGIN
 		BEGIN TRY
 			DELETE FROM Reporte WHERE Cod_reporte=@Cod_Reporte
+			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un reporte'
 			SET @MsgSuccess='REPORTE ELIMINADO CORRECTAMENTE'
 			COMMIT
 		END TRY
@@ -149,6 +151,8 @@ BEGIN
 				Fecha=@Fecha
 				WHERE Cod_reporte=@Cod_Reporte
 				EXEC PROC_ACTUALIZAR_ESTADO_REPORTES
+				EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un reporte'
+				SET @MsgSuccess='SE ACTUALIZARON LOS DATOS DEL REPORTE EXITOSAMENTE'
 				COMMIT
 			END TRY
 			BEGIN CATCH

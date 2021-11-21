@@ -30,6 +30,7 @@ BEGIN TRAN
 						INSERT INTO Servicio(Cod_tipo_servicio,Cedula_Conductor,Placa,Cedula_Cliente,Fecha_inicio,Fecha_finalizacion,Monto_Total_Servicio)
 						VALUES(@Codigo_Tipo_servicio,@Cedula_Conductor,@Placa_Vehiculo,@Cedula_Cliente,@F_Inicio,@F_Final,@Monto_Total)
 						EXEC PROC_ACTUALIZAR_ESTADO_VEHICULOS
+						EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo servicio'
 						SET @MsgSuccess='SERVICIO REGISTRADO EXITOSAMENTE'
 						COMMIT TRAN
 					END TRY
@@ -96,6 +97,7 @@ BEGIN
 					Monto_Total_Servicio=DBO.FUNC_CALCULAR_MONTO_TOTAL_SERVICIO(@Fecha_inicio,@Fecha_finalizacion,@Cod_tipo_servicio)
 					WHERE Cod_Servicio=@Cod_Servicio
 					EXEC PROC_ACTUALIZAR_ESTADO_VEHICULOS --solo actualiza el estado del vehiculo asignado
+					EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un servicio'
 					SET @MsgSuccess='DATOS DEL SERVICIO ACTUALIZADOS EXITOSAMENTE'
 					COMMIT
 				END TRY
@@ -134,6 +136,7 @@ BEGIN TRAN
 	BEGIN
 		BEGIN TRY
 			DELETE FROM Servicio WHERE Cod_Servicio =@Codigo_Servicio
+			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un servicio'
 			SET @MsgSuccess='SERVICIO ELIMINADO EXITOSAMENTE'
 			COMMIT
 		END TRY
