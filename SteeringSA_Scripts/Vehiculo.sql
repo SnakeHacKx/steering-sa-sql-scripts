@@ -5,7 +5,7 @@ ALTER PROC PROC_REGISTRAR_VEHICULO(
 	@Modelo_vehiculo varchar(10),
 	@Tipo varchar(15),
 	@pasajero smallint,
-	@Tipo_de_combustible varchar(10),
+	@Tipo_de_combustible varchar(12),
 	@Color varchar(10),
 	@MsgSuccess VARCHAR(50) = '' OUTPUT,
 	@MsgError VARCHAR(50) = '' OUTPUT
@@ -39,7 +39,7 @@ ALTER PROC PROC_ACTUALIZAR_DATOS_VEHICULO(
 	@Modelo_vehiculo varchar(10),
 	@Tipo varchar(15),
 	@pasajero smallint,
-	@Tipo_de_combustible varchar(10),
+	@Tipo_de_combustible varchar(12),
 	@Color varchar(10),
 	@MsgSuccess VARCHAR(50)='' OUTPUT,
 	@MsgError VARCHAR(50)='' OUTPUT
@@ -174,7 +174,7 @@ ALTER PROC PROC_FILTRO_VEHICULO(
 	@Tipo varchar(15)=NULL,
 	@pasajero_init smallint=NULL, --rango inferior
 	@pasajero_top smallint=NULL,	--rango superior
-	@Tipo_de_combustible varchar(10)=NULL,
+	@Tipo_de_combustible varchar(12)=NULL,
 	@Estado_vehiculo varchar(15) =NULL,
 	@Color varchar(10)=NULL,
 	@MsgError VARCHAR(50) = '' OUTPUT

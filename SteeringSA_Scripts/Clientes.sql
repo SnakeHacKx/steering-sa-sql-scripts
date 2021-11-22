@@ -117,10 +117,10 @@ ALTER PROC PROC_BUSCAR_NOMBRE_CLIENTE(
 )
 AS
 BEGIN
-	IF EXISTS(SELECT *FROM V_GENERALES_DE_CLIENTE WHERE [Nombre completo] LIKE '%'+@Nombre_Cliente+'%')
+	IF EXISTS(SELECT *FROM V_GENERALES_DE_CLIENTE WHERE Nombre+' '+Apellido LIKE '%'+@Nombre_Cliente+'%')
 	BEGIN
 		SELECT *FROM V_GENERALES_DE_CLIENTE
-		WHERE [Nombre completo] LIKE '%'+@Nombre_Cliente+'%'
+		WHERE Nombre+' '+Apellido LIKE '%'+@Nombre_Cliente+'%'
 	END
 	ELSE
 		SET @MsgError='CLIENTE NO ENCONTRADO'
@@ -146,6 +146,7 @@ GO
 
 --FILTRO
 ALTER PROC PROC_FILTRO_CLIENTE(
+	@Nombre_Cliente VARCHAR(35)=NULL,
 	@Edad_inicial INT =NULL,
 	@Edad_final INT =NULL,
 	@Direccion_cliente VARCHAR(65) =NULL,
@@ -155,14 +156,22 @@ AS
 BEGIN
 	IF (@Edad_inicial<@Edad_final) OR(@Edad_inicial IS NULL AND @Edad_final IS NULL)
 	BEGIN
-		SELECT * FROM V_GENERALES_DE_CLIENTE
-		WHERE ((Edad BETWEEN @Edad_inicial AND @Edad_final) OR (@Edad_inicial IS NULL AND @Edad_final IS NULL))
-		AND((Direccion LIKE '%'+@Direccion_cliente+'%') OR (@Direccion_cliente IS NULL))
+		IF EXISTS (SELECT * FROM V_GENERALES_DE_CLIENTE WHERE (Edad BETWEEN @Edad_inicial AND @Edad_final) OR (Direccion LIKE '%'+@Direccion_cliente+'%') OR (Nombre+' '+Apellido LIKE '%'+@Nombre_Cliente+'%'))
+		BEGIN
+			SELECT * FROM V_GENERALES_DE_CLIENTE
+			WHERE ((Edad BETWEEN @Edad_inicial AND @Edad_final) OR (@Edad_inicial IS NULL AND @Edad_final IS NULL))
+			AND((Direccion LIKE '%'+@Direccion_cliente+'%') OR (@Direccion_cliente IS NULL))
+			AND((Nombre+' '+Apellido LIKE '%'+@Nombre_Cliente+'%') OR (@Nombre_Cliente IS NULL))
+		END
+		ELSE
+			SET @MsgError='NO EXISTEN REGISTROS QUE CUMPLAN LOS PARAMETROS DE FILTRO ESTABLECIDOS'
 	END
 	ELSE
 		SET @MsgError='RANGO DE EDAD NO VALIDO ¡VERIFIQUE EL INTERVALO INTRODUCIDO!'
 END
 GO
+
+
 
 
 

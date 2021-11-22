@@ -6,7 +6,7 @@ ALTER PROC PROC_REGISTRAR_MANTENIMIENTO(
 	@Cod_reporte VARCHAR(10),
 	@Costo MONEY,
 	@Fecha DATE,
-	@Descripcion varchar(225),
+	@Descripcion varchar(1500),
 	@Estado VARCHAR(15),
 	@MsgSuccess VARCHAR(50) ='' OUTPUT,
 	@MsgError VARCHAR(50) ='' OUTPUT
@@ -97,7 +97,7 @@ ALTER PROC PROC_ACTUALIZAR_MANTENIMIENTO(
 	@Cod_reporte VARCHAR(10),
 	@Costo MONEY,
 	@Fecha DATE,
-	@Descripcion varchar(225),
+	@Descripcion varchar(1500),
 	@Estado VARCHAR(15),
 	@MsgSuccess VARCHAR(50)='' OUTPUT,
 	@MsgError VARCHAR(50)='' OUTPUT

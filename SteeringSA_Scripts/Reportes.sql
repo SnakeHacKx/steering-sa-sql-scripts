@@ -3,7 +3,7 @@
 --PROCEDIMIENTO PARA REGISTRAR UN REPORTE
 ALTER PROC PROC_REGISTRAR_REPORTE(
 	@Placa_Vehiculo VARCHAR(10),
-	@Descripcion VARCHAR(150),
+	@Descripcion VARCHAR(1500),
 	@Fecha DATE,
 	@MsgSuccess VARCHAR(50)='' OUTPUT,
 	@MsgError VARCHAR(50)='' OUTPUT
@@ -132,7 +132,7 @@ GO
 ALTER PROC PROC_ACTUALIZAR_DATOS_REPORTE(		--el estado no se pasa porque solo se modifica con los mantenimientos 
 	@Cod_Reporte VARCHAR(10),
 	@Placa_Vehiculo VARCHAR(10),
-	@Descripcion VARCHAR(150),
+	@Descripcion VARCHAR(1500),
 	@Fecha DATE,
 	@MsgSuccess VARCHAR(50) ='' OUTPUT,
 	@MsgError VARCHAR(50) ='' OUTPUT

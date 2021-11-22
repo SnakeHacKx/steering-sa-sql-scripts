@@ -30,15 +30,15 @@ AS
 GO
 
 --VISTA GENERALES DE CLIENTE
-CREATE VIEW V_GENERALES_DE_CLIENTE
+ALTER VIEW V_GENERALES_DE_CLIENTE
 AS
-	SELECT Cedula_Cliente AS 'N° Cedula',Nombre_Cliente+' '+Apellido_Cliente AS 'Nombre completo',Fecha_Nacimiento_Cliente AS 'Fecha de nacimiento',YEAR(GETDATE())-YEAR(Fecha_Nacimiento_Cliente) AS 'Edad',
+	SELECT Cedula_Cliente AS 'N° Cedula',Nombre_Cliente AS 'Nombre',Apellido_Cliente AS 'Apellido',Fecha_Nacimiento_Cliente AS 'Fecha de nacimiento',YEAR(GETDATE())-YEAR(Fecha_Nacimiento_Cliente) AS 'Edad',
 	Telefono_Cliente AS 'Telefono',Direccion_CLiente AS 'Direccion' FROM TB_Cliente
 GO
 --VISTA GENERALES DE CONDUCTOR
-CREATE VIEW V_GENERALES_DE_CONDUCTOR
+ALTER VIEW V_GENERALES_DE_CONDUCTOR
 AS
-	SELECT Cedula AS 'N° Cedula',Nombre+' '+Apellido AS 'Nombre completo',Telefono AS 'Contacto',Fecha_de_nacimiento AS 'Fecha de nacimiento',YEAR(GETDATE()) -YEAR(Fecha_de_nacimiento)
+	SELECT Cedula AS 'N° Cedula',Nombre,Apellido,Telefono AS 'Contacto',Fecha_de_nacimiento AS 'Fecha de nacimiento',YEAR(GETDATE()) -YEAR(Fecha_de_nacimiento)
 	AS 'Edad',Tipo_de_sangre AS 'Grupo sanguineo',Tipo_de_licencia AS 'Licencia'
 	FROM Conductor
 GO

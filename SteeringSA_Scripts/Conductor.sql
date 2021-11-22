@@ -109,7 +109,7 @@ ALTER PROC PROC_LISTAR_TODOS_CONDUCTORES
 AS
 BEGIN
 	SELECT *FROM V_GENERALES_DE_CONDUCTOR
-	ORDER BY [Nombre completo]
+	ORDER BY Nombre
 END
 GO
 
@@ -121,10 +121,10 @@ ALTER PROC PROC_BUSCAR_NOMBRE_CONDUCTOR(
 )
 AS
 BEGIN
-	IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE [Nombre completo] LIKE '%'+@Nombre+'%')
+	IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE Nombre+' '+Apellido LIKE '%'+@Nombre+'%')
 	BEGIN
-		SELECT *FROM V_GENERALES_DE_CONDUCTOR
-		WHERE [Nombre completo] LIKE '%'+@Nombre+'%'
+		SELECT * FROM V_GENERALES_DE_CONDUCTOR
+		WHERE Nombre+' '+Apellido LIKE '%'+@Nombre+'%'
 	END
 	ELSE
 		SET @MsgError='CONDUCTOR NO ENCONTRADO'
@@ -149,7 +149,8 @@ END
 GO
 
 ---FILTROS
-ALTER PROC PROC_FILTAR_EDAD_LICENCIA_CONDUCTOR( --FILTRA POR UN RANGO DE EDAD O POR UN TIPO DE LICENCIA
+ALTER PROC PROC_FILTRO_CONDUCTOR(
+	@Nombre VARCHAR(70),
 	@Tipo_de_licencia VARCHAR(2)=NULL,
 	@Edad_menor INT =NULL,
 	@Edad_mayor INT =NULL,
@@ -159,18 +160,19 @@ AS
 BEGIN
 	IF @Edad_menor<=@Edad_mayor OR (@Edad_menor IS NULL AND @Edad_mayor IS NULL)
 	BEGIN
-		IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE Licencia =@Tipo_de_licencia OR (Edad BETWEEN @Edad_menor AND @Edad_mayor))
+		IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE Licencia =@Tipo_de_licencia OR (Edad BETWEEN @Edad_menor AND @Edad_mayor) OR (Nombre+' '+Apellido LIKE '%'+@Nombre+'%'))
 		BEGIN
 			SELECT *FROM V_GENERALES_DE_CONDUCTOR
 			WHERE (Licencia =@Tipo_de_licencia OR @Tipo_de_licencia IS NULL)--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
 			AND ((Edad BETWEEN @Edad_menor AND @Edad_mayor) OR (@Edad_menor IS NULL AND @Edad_mayor IS NULL))--en caso de que no haya sido seleccionado el parametro como filtro entonces vendra como Null lo que hace que la condicion sea true pero no busca en la base de datos
+			AND((Nombre+' '+Apellido LIKE '%'+@Nombre+'%')OR (@Nombre IS NULL))
 		END
 		ELSE
-			SET @MsgError='NO HAY REGISTROS ENCONTRADOS DENTRO DE LOS PARAMETROS DE FILTRADO'
+			SET @MsgError='NO HAY REGISTROS REGISTRADOS DENTRO DE LOS PARAMETROS DE FILTRADO'
 	END
 	ELSE
 		SET @MsgError='INTERVALO DE EDAD NO VALIDO ¡VERIFIQUE LOS VALORES!'
 END
 GO
 
-EXEC PROC_FILTAR_EDAD_LICENCIA_CONDUCTOR 'D',NULL,NULL
+

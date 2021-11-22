@@ -35,7 +35,7 @@ CREATE TABLE Reporte(
 	Cod_reporte VARCHAR(10),
 	Placa_Vehiculo VARCHAR(10) NOT NULL,
 	Estado VARCHAR(13) NOT NULL DEFAULT 'NO ATENDIDO',
-	Descripcion VARCHAR(150) NOT NULL,
+	Descripcion VARCHAR(1500) NOT NULL,
 	Fecha DATE NOT NULL,
 	PRIMARY KEY(Cod_reporte),
 	FOREIGN KEY(Placa_Vehiculo) REFERENCES Vehiculo(Placa)
@@ -47,7 +47,7 @@ CREATE TABLE Mantenimiento(
 	Cod_reporte VARCHAR(10) NOT NULL,
 	Costo MONEY DEFAULT 0.00,
 	Fecha DATE NOT NULL,
-	Descripcion varchar(225) not null,
+	Descripcion varchar(1500) not null,
 	Estado VARCHAR(15) NOT NULL,
 	PRIMARY KEY(Cod_Mantenimiento),
 	FOREIGN KEY (Placa_Vehiculo) REFERENCES Vehiculo(Placa)
@@ -61,16 +61,11 @@ Create table Vehiculo(
 	Tipo varchar(15) not null, --se cambio de 20 a 15
 	Estado varchar(15) not null, --se cambio a 15
 	pasajero smallint not null,
-	Tipo_de_combustible varchar(10) not null,
+	Tipo_de_combustible varchar(12) not null,
 	Color varchar(10) not null,
 	primary key(Placa)
 )
 
-
-/*MODIFICACION DEL LA BASE DE DATOS 24-9-21 
-MODIFICACION DE RELACION ENTRE CONDUCTORES, SERVICIOS Y VEHICULOS
-SE MODIFICARA TAMBIEN LA TABLA SERVICIOS PARA SER TIPOS DE SERVICIOS
-LA RELACION PASARA A LLAMARSE SERVICIOS*/
 
 GO
 --CREACION DE LA TABLA TIPO DE SERVICIOS
@@ -78,7 +73,7 @@ CREATE TABLE Tipo_servicios(
 	Cod_tipo_servicio INT NOT NULL,
 	Nombre_servicio VARCHAR(40) NOT NULL,
 	Costo_servicio MONEY NOT NULL,
-	Descripcion_servicio VARCHAR(175)DEFAULT(''),
+	Descripcion_servicio VARCHAR(1500)DEFAULT(''),
 	PRIMARY KEY (Cod_tipo_servicio)
 );
 GO
