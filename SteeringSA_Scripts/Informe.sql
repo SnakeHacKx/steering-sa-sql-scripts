@@ -23,11 +23,6 @@ BEGIN
 	SET @informe += 'Actualizar                               '+ CAST ((SELECT COUNT(*) FROM TB_Historial WHERE Accion='Actualizar') AS VARCHAR(6))+CHAR(13)
 	SET @informe += 'Eliminar                                 '+ CAST ((SELECT COUNT(*) FROM TB_Historial WHERE Accion='Eliminar') AS VARCHAR(6))+CHAR(13)
 	SET @informe += 'Total de acciones                        '+ CAST ((SELECT COUNT(*) FROM TB_Historial) AS VARCHAR(6))+CHAR(13)+CHAR(13)
-	SET @informe +=''+DBO.FUNC_GENERALES_CONDUCTORES()+CHAR(13)
-	SET @informe +=''+DBO.FUNC_GENERALES_CLIENTES()
-
-
-
 	RETURN @informe
 END
 GO

@@ -39,7 +39,7 @@ GO
 --PROCEDIMIENTO PARA REGISTRAR NUEVO USUARIO
 ALTER PROC PROC_REGISTRAR_USUARIO(
 	@User_name VARCHAR(25),
-	@User_Password Varchar(20),
+	@User_Password Varchar(30),
 	@User_rol VARCHAR(10),
 	@MsgSuccess VARCHAR(50)='' OUTPUT,
 	@MsgError VARCHAR(50)='' OUTPUT
@@ -77,6 +77,76 @@ BEGIN TRAN
 
 END
 GO
+--ELIMINAR USUARIOS
+ALTER PROC PROC_ELIMINAR_USUARIO(
+@User_name VARCHAR(25),
+@MsgSuccess VARCHAR(50)='' OUTPUT,
+@MsgError VARCHAR(50)='' OUTPUT
+)
+AS
+BEGIN
+	BEGIN TRAN
+	DECLARE @query VARCHAR(100)
+	BEGIN TRY
+		SET @query = 'DROP USER '+@User_name	--primero se eliminar el usuario de la base de datos
+		EXEC(@query)
+		SET @query ='DROP LOGIN '+@User_name			--luego se elimina el login del servidor
+		EXEC(@query)
+		SET @MsgSuccess='Usuario eliminado'
+		COMMIT
+	END TRY
+	BEGIN CATCH
+		SET @MsgError='Error al intentar eliminar el usuario'+char(13)+'Verifique el nombre de usuario'
+		ROLLBACK
+	END CATCH
+END
+GO
 
+--MODIFICAR CONTRASEÑA DE USUARIO
+ALTER PROC PROC_CAMBIAR_CONTRASEÑA_USUARIO(
+	@User_name VARCHAR(25),
+	@New_pass VARCHAR(30),
+	@MsgSuccess VARCHAR(50)='' OUTPUT,
+	@MsgError VARCHAR(50)='' OUTPUT
+)
+AS
+BEGIN
+	BEGIN TRAN
+	DECLARE @query VARCHAR(100)
+	BEGIN TRY
+		SET @query = 'ALTER LOGIN '+@User_name+' WITH PASSWORD = '''+@New_pass+''''
+		EXEC(@query)
+		SET @MsgSuccess='Contraseña actualizada correctamente'
+		COMMIT
+	END TRY
+	BEGIN CATCH
+		SET @MsgError='Ocurrio un error al intentar cambiar la contraseña'
+		ROLLBACK
+	END CATCH
+END
+GO
 
-
+--MODIFICAR NOMBRE DE USUARIO
+CREATE PROC PROC_CAMBIAR_NOMBRE_DE_USUARIO(
+	@User_name VARCHAR(25),
+	@new_name VARCHAR(25),
+	@MsgSuccess VARCHAR(50)='' OUTPUT,
+	@MsgError VARCHAR(50)='' OUTPUT
+)
+AS
+BEGIN
+	BEGIN TRAN
+	DECLARE @query VARCHAR(100)
+	BEGIN TRY
+		SET @query ='ALTER LOGIN '+@User_name+' WITH NAME = '+@new_name
+		PRINT 'EXITO'
+		EXEC(@query)
+		SET @MsgSuccess='Nombre de usuario actualizado correctamente'
+		COMMIT
+	END TRY
+	BEGIN CATCH
+		SET @MsgError='Ocurrio un error al intentar cambiar el nombre de usuario'
+		ROLLBACK
+	END CATCH
+END
+GO
