@@ -67,3 +67,12 @@ AS
 	SELECT U.Id_usuario AS 'ID',U.Nombre_usuario AS 'Nombre de Usuario',U.Rol_usuario AS 'Rol de Usuario',H.Accion AS 'Accion realizada',H.Fecha AS 'Fecha de realizacion',H.ID_operacion'ID de accion' FROM TB_Historial H
 	INNER JOIN TB_Usuarios U ON U.Id_usuario=H.Id_usuario
 GO
+
+--VISTA PARA OBTENER LOS USUARIOS Y SUS ROLES
+ALTER VIEW V_VER_USUARIOS
+AS
+	SELECT m.name Usuario, p.name Rol FROM sys.database_role_members rm
+	INNER JOIN sys.database_principals p ON rm.role_principal_id = p.principal_id
+	INNER JOIN sys.database_principals m ON rm.member_principal_id = m.principal_id
+	WHERE m.type='S'
+GO
