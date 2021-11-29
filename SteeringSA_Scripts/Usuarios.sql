@@ -162,7 +162,6 @@ BEGIN
 			EXEC(@query)
 			SET @query ='ALTER LOGIN '+@User_name+' WITH NAME = '+@new_name
 			EXEC(@query)
-			PRINT 'EXITO'
 			SET @MsgSuccess='Nombre de usuario actualizado correctamente'
 			COMMIT
 		END TRY
@@ -178,3 +177,9 @@ BEGIN
 	END
 END
 GO
+
+CREATE PROC PROC_MOSTRAR_USUARIOS
+AS
+BEGIN
+	SELECT *FROM V_VER_USUARIOS
+END
