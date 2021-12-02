@@ -4,7 +4,7 @@ ALTER PROC PROC_REGISTRAR_VEHICULO(
 	@Placa varchar(10),
 	@Modelo_vehiculo varchar(10),
 	@Tipo varchar(15),
-	@pasajero smallint,
+	@pasajero varchar(2),
 	@Tipo_de_combustible varchar(12),
 	@Color varchar(10),
 	@MsgSuccess VARCHAR(50) = '' OUTPUT,

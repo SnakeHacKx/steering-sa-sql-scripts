@@ -26,8 +26,10 @@ RETURNS VARCHAR(30)
 AS
 BEGIN
 	DECLARE @User_Rol VARCHAR(10)
-	SET @User_Rol=(SELECT Rol FROM V_VER_USUARIOS
-		WHERE Usuario=USER_NAME())
+	SET @User_Rol=(SELECT p.name FROM sys.database_role_members rm
+	INNER JOIN sys.database_principals p ON rm.role_principal_id = p.principal_id
+	INNER JOIN sys.database_principals m ON rm.member_principal_id = m.principal_id
+	WHERE m.name=USER_NAME())
 	RETURN(@User_Rol)
 END
 GO

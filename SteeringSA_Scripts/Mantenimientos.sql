@@ -20,7 +20,7 @@ BEGIN--SI EL MANTENIMIENTO NO CORRESPONDE A NINGUN REPORTE (ES MANTENIMIENTO PRE
 		BEGIN
 			IF EXISTS(SELECT * FROM Reporte WHERE Cod_reporte=@Cod_reporte AND Placa_Vehiculo=@Placa_Vehiculo) OR (@Cod_reporte='S/R')--Verifica que el codigo de reporte corresponda la vehiculo seleccionado o que sea un mantenimiento preventivo
 			BEGIN
-				IF (@Fecha>=Format(GETDATE(),'yyyy-MM-dd'))--verifica que el mantenimiento no se registre a un dia anterior a la fecha actual
+				IF (Format(@Fecha,'yyyy-MM-dd')>=Format((SELECT Fecha FROM Reporte WHERE Cod_reporte=@Cod_reporte) ,'yyyy-MM-dd')) OR (@Cod_reporte='S/R')--Se verifica que la fecha del mantenimiento no sea menor a la del reporte que atiende a menos que sea sin reporte
 				BEGIN
 					BEGIN TRY
 						INSERT INTO Mantenimiento (Placa_Vehiculo,Cod_reporte,Costo,Fecha,Descripcion,Estado)
@@ -37,7 +37,7 @@ BEGIN--SI EL MANTENIMIENTO NO CORRESPONDE A NINGUN REPORTE (ES MANTENIMIENTO PRE
 				END
 				ELSE
 				BEGIN
-					SET @MsgError= 'NO SE PUEDE REGISTRAR UN MANTENIMIENTO PARA UNA FECHA ANTERIOR A LA ACTUAL'
+					SET @MsgError= 'NO SE PUEDE REGISTRAR UN MANTENIMIENTO PARA UNA FECHA ANTERIOR AL REPORTE QUE ATIENDE'
 					ROLLBACK
 				END
 			END
