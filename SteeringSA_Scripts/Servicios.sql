@@ -16,53 +16,71 @@ BEGIN
 BEGIN TRAN
 	DECLARE @Monto_Total money,-- EL TOTAL A PAGAR POR LOS DIAS QUE SE REALIZO EL SERVICIO
 	@Validacion INT--SEGUNA EL VALOR QUE TENGA SE IMPRIME UN MENSAJE DE ERROR DIFERENTE
-	--SE VERIFICA QUE NO HAYA UN CONDUCTOR REGISTRADO ENTRE LAS FECHAS DEL NUEVO SERVICIO A REALIZAR
-	IF NOT EXISTS(SELECT * FROM Servicio WHERE Cedula_Conductor=@Cedula_Conductor and (@F_Inicio between Fecha_inicio and Fecha_finalizacion) and (@F_Final between Fecha_inicio and Fecha_finalizacion))
-	BEGIN--SE VERIFICA QUE EL VEHICULO NO ESTE REGISTRADO ENTRE LAS FECHAS PARA VER SI ESTA DISPONIBLE
-		IF NOT EXISTS(SELECT * FROM Servicio WHERE Placa=@Placa_Vehiculo and (@F_Inicio between Fecha_inicio and Fecha_finalizacion) and (@F_Final between Fecha_inicio and Fecha_finalizacion))
-		BEGIN	
-			SET @Validacion = DBO.FUNC_VALIDACION_REGISTRO_SERVICIO(@Codigo_Tipo_servicio,@Cedula_Conductor,@Cedula_Cliente,@Placa_Vehiculo)
-			IF  @Validacion= 0
-			BEGIN--SE VALIDA QUE LOS PARAMETROS EXISTAN EN SUS CORRESPONDIENTES TABLAS
-				SET @Monto_Total = DBO.FUNC_CALCULAR_MONTO_TOTAL_SERVICIO(@F_Inicio,@F_Final,@Codigo_Tipo_servicio) --SE CALCULA EL MONTO TOTAL
+	--Se verifica que la fecha de inicio sea mayor o igual a la final y que sea mayor o igual a la actual
+	IF (@F_Inicio<=@F_Final) AND (@F_Inicio>=Format(GETDATE(),'yyyy-MM-dd'))
+	BEGIN
+		--SE VERIFICA QUE EL CONDUCTOR NO TENGA REGISTRADO UN SERVICIO ENTRE LAS FECHAS DEL NUEVO SERVICIO A REALIZAR
+		IF NOT EXISTS(SELECT * FROM Servicio WHERE Cedula_Conductor=@Cedula_Conductor and (@F_Inicio between Fecha_inicio and Fecha_finalizacion) and (@F_Final between Fecha_inicio and Fecha_finalizacion))
+		BEGIN--SE VERIFICA QUE EL VEHICULO NO TENGA REGISTRADO UN SERVICIO ENTRE LAS FECHAS PARA VER SI ESTA DISPONIBLE
+			IF NOT EXISTS(SELECT * FROM Servicio WHERE Placa=@Placa_Vehiculo and (@F_Inicio between Fecha_inicio and Fecha_finalizacion) and (@F_Final between Fecha_inicio and Fecha_finalizacion))
+			BEGIN	--Se verifica que el vehiculo no tenga un mantenimiento programado para la fecha del nuevo servicio
+				IF NOT EXISTS(SELECT * FROM Mantenimiento WHERE Placa_Vehiculo=@Placa_Vehiculo AND (Fecha BETWEEN @F_Inicio AND @F_Final))
+				BEGIN--SE VALIDA QUE LOS PARAMETROS EXISTAN EN SUS CORRESPONDIENTES TABLAS
+					SET @Validacion = DBO.FUNC_VALIDACION_REGISTRO_SERVICIO(@Codigo_Tipo_servicio,@Cedula_Conductor,@Cedula_Cliente,@Placa_Vehiculo)
+					IF @Validacion= 0
+					BEGIN
+						SET @Monto_Total = DBO.FUNC_CALCULAR_MONTO_TOTAL_SERVICIO(@F_Inicio,@F_Final,@Codigo_Tipo_servicio) --SE CALCULA EL MONTO TOTAL
+						BEGIN
+							BEGIN TRY --INICIO DE LA INSERCION EN LA TABLA SERVICIO
+								INSERT INTO Servicio(Cod_tipo_servicio,Cedula_Conductor,Placa,Cedula_Cliente,Fecha_inicio,Fecha_finalizacion,Monto_Total_Servicio)
+								VALUES(@Codigo_Tipo_servicio,@Cedula_Conductor,@Placa_Vehiculo,@Cedula_Cliente,@F_Inicio,@F_Final,@Monto_Total)
+								EXEC PROC_ACTUALIZAR_ESTADO_VEHICULOS
+								EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo servicio'
+								SET @MsgSuccess='Servicio registrado exitosamente'
+								COMMIT TRAN
+							END TRY
+							BEGIN CATCH
+								SET @MsgError='Error al intentar registrar el servicio'
+								ROLLBACK
+							END CATCH
+						END
+					END
+					ELSE
+					BEGIN
+						SET @MsgError=        --IMPRIME EL MENSAJE DE ERROR SEGUN LO QUE NO SE ENCUENTRE REGISTRADO
+							CASE 
+								WHEN @Validacion = 1 THEN 'El tipo de servicio seleccionado no corresponde a ninguno que ofrezca la empresa'
+								WHEN @Validacion = 2 THEN 'La cedula seleccionada no corresponde a ningun conductor registrado en la base de datos'
+								WHEN @Validacion = 3 THEN 'La cedula del cliente seleccionada no corresponde a ningun cliente registrado en la base de datos'
+								WHEN @Validacion = 4 THEN 'El vehiculo seleccionado no se encuentra registrado en la flota'
+							END
+							ROLLBACK
+					END
+				END--Fin del if de mantenimiento
+				ELSE
 				BEGIN
-					BEGIN TRY --INICIO DE LA INSERCION EN LA TABLA SERVICIO
-						INSERT INTO Servicio(Cod_tipo_servicio,Cedula_Conductor,Placa,Cedula_Cliente,Fecha_inicio,Fecha_finalizacion,Monto_Total_Servicio)
-						VALUES(@Codigo_Tipo_servicio,@Cedula_Conductor,@Placa_Vehiculo,@Cedula_Cliente,@F_Inicio,@F_Final,@Monto_Total)
-						EXEC PROC_ACTUALIZAR_ESTADO_VEHICULOS
-						EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo servicio'
-						SET @MsgSuccess='SERVICIO REGISTRADO EXITOSAMENTE'
-						COMMIT TRAN
-					END TRY
-					BEGIN CATCH
-						SET @MsgError='ERROR AL INTENTAR REGISTRAR EL SERVICIO'
-						ROLLBACK
-					END CATCH
+					SET @MsgError='El vehiculo seleccionado estara en mantenimiento para la fecha del servicio'
+					ROLLBACK
 				END
-			END
+			END --Fin del if de verificacion de vehiculo
 			ELSE
 			BEGIN
-				SET @MsgError=        --IMPRIME EL MENSAJE DE ERROR SEGUN LO QUE NO SE ENCUENTRE REGISTRADO
-					CASE 
-						WHEN @Validacion = 1 THEN 'EL TIPO DE SERVICIO SELECCIONADO NO CORRESPONDE A NINGUNO QUE OFREZCA LA EMPRESA'
-						WHEN @Validacion = 2 THEN 'LA CEDULA DEL CONDUCTOR SELECCIONADO NO SE ENCUENTRA REGISTRADA EN LA BASE DE DATOS'
-						WHEN @Validacion = 3 THEN 'LA CEDULA DEL CLIENTE SELECCIONADO NO SE ENCUENTRA EN LA BASE DE DATOS'
-						WHEN @Validacion = 4 THEN 'EL VEHICULO SELECCIONADO NO SE ENCUENTRA REGISTRADO EN LA BASE DE DATOS COMO PARTE DE LA FLOTA'
-					END
-					ROLLBACK
+				SET @MsgError='El vehiculo seleccionado esta ocupado para la fecha del servicio'
+				ROLLBACK
 			END
-		END
+		END--fin del if de varificacion del conductor
 		ELSE
 		BEGIN
-			SET @MsgError='EL VEHICULO SELECCIONADO ESTA OCUPADO PARA ESA FECHA'
+			SET @MsgError='El conductor seleccionado esta ocupado para la fecha del servicio'
 			ROLLBACK
 		END
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='EL CONDUCTOR SELECCIONADO ESTA OCUPADO PARA ESA FECHA'
+		SET @MsgError='Error en los rangos de fecha seleccionados, verifique'
 		ROLLBACK
 	END
+	
 END
 GO
 
@@ -81,46 +99,78 @@ ALTER PROC PROC_ACTUALIZAR_DATOS_SERVICIO(
 AS
 BEGIN
 	BEGIN TRAN
-	IF EXISTS (SELECT * FROM Servicio WHERE Cod_Servicio=@Cod_Servicio)
+	DECLARE @Validacion INT
+	IF (@Fecha_inicio<=@Fecha_finalizacion) AND (@Fecha_inicio>=Format(GETDATE(),'yyyy-MM-dd'))
 	BEGIN
-		IF NOT EXISTS(SELECT * FROM Servicio WHERE Placa=@Placa and (@Fecha_inicio between Fecha_inicio and Fecha_finalizacion) and (@Fecha_finalizacion between Fecha_inicio and Fecha_finalizacion)) OR EXISTS(SELECT * FROM Servicio WHERE Placa=@Placa AND Cod_Servicio=@Cod_Servicio)
+		IF EXISTS (SELECT * FROM Servicio WHERE Cod_Servicio=@Cod_Servicio)
 		BEGIN
-			IF NOT EXISTS(SELECT * FROM Servicio WHERE Cedula_Conductor=@Cedula_Conductor and (@Fecha_inicio between Fecha_inicio and Fecha_finalizacion) and (@Fecha_finalizacion between Fecha_inicio and Fecha_finalizacion)) OR EXISTS(SELECT * FROM Servicio WHERE Cedula_Conductor=@Cedula_Conductor AND Cod_Servicio = @Cod_Servicio)
+			IF NOT EXISTS(SELECT * FROM Servicio WHERE Placa=@Placa and (@Fecha_inicio between Fecha_inicio and Fecha_finalizacion) and (@Fecha_finalizacion between Fecha_inicio and Fecha_finalizacion)) OR EXISTS(SELECT * FROM Servicio WHERE Placa=@Placa AND Cod_Servicio=@Cod_Servicio)
 			BEGIN
-				BEGIN TRY
-					UPDATE Servicio SET Cod_tipo_servicio=@Cod_tipo_servicio,
-					Cedula_Conductor=@Cedula_Conductor,
-					Cedula_Cliente=@Cedula_Cliente,
-					Placa= @Placa,
-					Fecha_inicio=@Fecha_inicio,
-					Fecha_finalizacion=@Fecha_finalizacion,
-					Monto_Total_Servicio=DBO.FUNC_CALCULAR_MONTO_TOTAL_SERVICIO(@Fecha_inicio,@Fecha_finalizacion,@Cod_tipo_servicio)
-					WHERE Cod_Servicio=@Cod_Servicio
-					EXEC PROC_ACTUALIZAR_ESTADO_VEHICULOS --solo actualiza el estado del vehiculo asignado
-					EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un servicio'
-					SET @MsgSuccess='DATOS DEL SERVICIO ACTUALIZADOS EXITOSAMENTE'
-					COMMIT
-				END TRY
-				BEGIN CATCH
-					SET @MsgError='ERROR AL INTENTAR ACTUALIZAR LOS DATOS DEL SERVICIO'
+				IF NOT EXISTS(SELECT * FROM Servicio WHERE Cedula_Conductor=@Cedula_Conductor and (@Fecha_inicio between Fecha_inicio and Fecha_finalizacion) and (@Fecha_finalizacion between Fecha_inicio and Fecha_finalizacion)) OR EXISTS(SELECT * FROM Servicio WHERE Cedula_Conductor=@Cedula_Conductor AND Cod_Servicio = @Cod_Servicio)
+				BEGIN
+					IF NOT EXISTS(SELECT * FROM Mantenimiento WHERE Placa_Vehiculo=@Placa AND (Fecha BETWEEN @Fecha_inicio AND @Fecha_finalizacion))
+					BEGIN--SE VALIDA QUE LOS PARAMETROS EXISTAN EN SUS CORRESPONDIENTES TABLAS
+						SET @Validacion = DBO.FUNC_VALIDACION_REGISTRO_SERVICIO(@Cod_tipo_servicio,@Cedula_Conductor,@Cedula_Cliente,@Placa)
+						IF @Validacion= 0
+						BEGIN
+							BEGIN TRY
+								UPDATE Servicio SET Cod_tipo_servicio=@Cod_tipo_servicio,
+								Cedula_Conductor=@Cedula_Conductor,
+								Cedula_Cliente=@Cedula_Cliente,
+								Placa= @Placa,
+								Fecha_inicio=@Fecha_inicio,
+								Fecha_finalizacion=@Fecha_finalizacion,
+								Monto_Total_Servicio=DBO.FUNC_CALCULAR_MONTO_TOTAL_SERVICIO(@Fecha_inicio,@Fecha_finalizacion,@Cod_tipo_servicio)
+								WHERE Cod_Servicio=@Cod_Servicio
+								EXEC PROC_ACTUALIZAR_ESTADO_VEHICULOS --solo actualiza el estado del vehiculo asignado
+								EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un servicio'
+								SET @MsgSuccess='Datos del servicio actualizados correctamente'
+								COMMIT
+							END TRY
+							BEGIN CATCH
+								SET @MsgError='Error al intentar actualizar los datos del servicio'
+								ROLLBACK
+							END CATCH
+						END
+						ELSE
+						BEGIN
+							SET @MsgError=        --IMPRIME EL MENSAJE DE ERROR SEGUN LO QUE NO SE ENCUENTRE REGISTRADO
+								CASE 
+									WHEN @Validacion = 1 THEN 'El tipo de servicio seleccionado no corresponde a ninguno que ofrezca la empresa'
+									WHEN @Validacion = 2 THEN 'La cedula seleccionada no corresponde a ningun conductor registrado en la base de datos'
+									WHEN @Validacion = 3 THEN 'La cedula del cliente seleccionada no corresponde a ningun cliente registrado en la base de datos'
+									WHEN @Validacion = 4 THEN 'El vehiculo seleccionado no se encuentra registrado en la flota'
+								END
+								ROLLBACK
+						END
+					END--Fin del if de mantenimiento
+					ELSE
+					BEGIN
+						SET @MsgError='El vehiculo seleccionado estara en mantenimiento para la fecha del servicio'
+						ROLLBACK
+					END
+				END
+				ELSE
+				BEGIN
+					SET @MsgError='El conductor asignado no esta disponible para la fecha del servicio'
 					ROLLBACK
-				END CATCH
+				END
 			END
 			ELSE
 			BEGIN
-				SET @MsgError='EL CONDUCTOR ASIGNADO NO ESTA DISPONIBLE PARA LA FECHA DE ESTE EVENTO'
+				SET @MsgError='El vehiculo asignado no esta disponible para la fecha del servicio'
 				ROLLBACK
 			END
 		END
 		ELSE
 		BEGIN
-			SET @MsgError='EL VEHICULO ASIGNADO NO ESTA DISPONIBLE PARA LA FECHA DE ESTE EVENTO'
+			SET @MsgError= 'El servicio registrado no esta registrado en la base de datos'
 			ROLLBACK
 		END
 	END
 	ELSE
 	BEGIN
-		SET @MsgError= 'EL SERVICIO SELECCIONADO NO ESTA REGISTRADO EN LA BASE DE DATOS'
+		SET @MsgError='Error en los rangos de fecha seleccionados, verifique'
 		ROLLBACK
 	END
 END
@@ -137,20 +187,19 @@ BEGIN TRAN
 		BEGIN TRY
 			DELETE FROM Servicio WHERE Cod_Servicio =@Codigo_Servicio
 			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un servicio'
-			SET @MsgSuccess='SERVICIO ELIMINADO EXITOSAMENTE'
+			SET @MsgSuccess='Servicio eliminado exitosamente'
 			COMMIT
 		END TRY
 		BEGIN CATCH
-			SET @MsgError='ERROR AL INTENTAR ELIMINAR EL SERVICIO SELECCIONADO'
+			SET @MsgError='Error al intentar eliminar el servicio seleccionado'
 			ROLLBACK
 		END CATCH
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='EL CODIGO DE SERVICIO SELECCIONADO NO CORRESPONDE A NINGUN SERVICIO REGISTRADO'
+		SET @MsgError='El codigo de servicio seleccionado no corresponde a ninguno registrado'
 		ROLLBACK
 	END
-
 END
 GO
 
@@ -208,17 +257,15 @@ GO
 
 
 --MOSTRAR TODOS LOS SERVICIOS
-CREATE PROC PROC_LISTAR_TODOS_SERVICIOS
+ALTER PROC PROC_LISTAR_TODOS_SERVICIOS
 AS
 BEGIN
-	SELECT Codigo,[Tipo de servicio],Descripcion,Cliente,Conductor,[Cedula de Conductor],[Placa de vehiculo],[Tipo de vehiculo],[Color de Vehiculo],[Fecha de inicio],
-	[Fecha de finalizacion],DATEDIFF(DAY,[Fecha de inicio],[Fecha de finalizacion]) AS 'Duracion',[Costo total]
-	FROM V_GENERALES_DE_SERVICIO
+	SELECT *FROM V_GENERALES_DE_SERVICIO
 END
 GO
 
 --BUSCAR POR CODIGO DE SERVICIO
-CREATE PROC PROC_BUSCAR_CODIGO_SERVICIO(
+ALTER PROC PROC_BUSCAR_CODIGO_SERVICIO(
 	@Codigo_Servicio INT,
 	@MsgError VARCHAR(50) ='' OUTPUT
 )
@@ -226,9 +273,8 @@ AS
 BEGIN
 	IF EXISTS(SELECT *FROM Servicio WHERE Cod_Servicio=@Codigo_Servicio)
 	BEGIN
-		SELECT Codigo,[Tipo de servicio],Descripcion,Cliente,Conductor,[Cedula de Conductor],[Placa de vehiculo],[Tipo de vehiculo],[Color de Vehiculo],[Fecha de inicio],
-		[Fecha de finalizacion],DATEDIFF(DAY,[Fecha de inicio],[Fecha de finalizacion]) AS 'Duracion',[Costo total]
-		FROM V_GENERALES_DE_SERVICIO
+		SELECT *FROM V_GENERALES_DE_SERVICIO
+		WHERE Codigo = @Codigo_Servicio
 	END
 	ELSE
 		SET @MsgError ='SERVICIO NO ENCONTRADO'
@@ -236,12 +282,11 @@ END
 GO
 
 --FILTRO
-CREATE PROC PROC_FILTRO_SERVICIO(
+ALTER PROC PROC_FILTRO_SERVICIO(
 	@Cedula_Cliente VARCHAR(15) = NULL,
 	@Cedula_Conductor VARCHAR(15) = NULL,
 	@Placa_Vehiculo VARCHAR(10) = NULL,
 	@Tipo_Servicio VARCHAR(40) = NULL,
-	@Tipo_vehiculo VARCHAR(15) = NULL,
 	@Costo_inicial MONEY = NULL,
 	@Costo_final MONEY = NULL,
 	@Fecha_inicial DATE = NULL,
@@ -259,7 +304,6 @@ BEGIN
 				AND([Cedula de Conductor] = @Cedula_Conductor OR @Cedula_Conductor IS NULL)
 				AND([Placa de vehiculo] = @Placa_Vehiculo OR @Placa_Vehiculo IS NULL)
 				AND([Tipo de servicio]=@Tipo_Servicio OR @Tipo_Servicio IS NULL)
-				AND([Tipo de vehiculo] = @Tipo_vehiculo OR @Tipo_vehiculo IS NULL)
 				AND((([Fecha de inicio] BETWEEN @Fecha_inicial AND @Fecha_final)AND([Fecha de finalizacion] BETWEEN @Fecha_inicial AND @Fecha_final)) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
 				AND(([Costo total] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
 		END

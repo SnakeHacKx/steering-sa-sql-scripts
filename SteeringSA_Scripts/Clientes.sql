@@ -16,11 +16,20 @@ BEGIN
 BEGIN TRAN
 	IF NOT EXISTS(SELECT * FROM TB_Cliente WHERE Cedula_Cliente=@Cedula_Cliente)
 	BEGIN
-		INSERT INTO TB_Cliente(Cedula_Cliente,Nombre_Cliente,Apellido_Cliente,Fecha_Nacimiento_Cliente,Telefono_Cliente,Direccion_CLiente)
-		VALUES(@Cedula_Cliente,@Nombre_Cliente,@Apellido_Cliente,@Fecha_Nacimiento_Cliente,@Telefono_Cliente,@Direccion_Cliente)
-		EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo cliente'
-		SET @MsgSuccess = 'Cliente registrado correctamente.'
-		COMMIT
+		IF (DATEDIFF(YEAR,@Fecha_Nacimiento_Cliente,format(GETDATE(),'yyyy-MM-dd'))>=18)
+		BEGIN
+			INSERT INTO TB_Cliente(Cedula_Cliente,Nombre_Cliente,Apellido_Cliente,Fecha_Nacimiento_Cliente,Telefono_Cliente,Direccion_CLiente)
+			VALUES(@Cedula_Cliente,@Nombre_Cliente,@Apellido_Cliente,@Fecha_Nacimiento_Cliente,@Telefono_Cliente,@Direccion_Cliente)
+			EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo cliente'
+			SET @MsgSuccess = 'Cliente registrado correctamente.'
+			COMMIT
+		END
+		ELSE
+		BEGIN
+			SET @MsgError= 'El cliente no puede ser menor de edad'
+			PRINT'MENOR'
+			ROLLBACK
+		END
 	END
 	ELSE
 	BEGIN
@@ -56,17 +65,17 @@ BEGIN TRAN
 			Direccion_CLiente=@Direccion_Cliente
 			WHERE Cedula_Cliente=@Cedula_Cliente
 			EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un cliente'
-			SET @MsgSuccess = 'DATOS DEL CLIENTE ACTUALIZADOS EXITOSAMENTE'
+			SET @MsgSuccess = 'Datos del cliente actualizados correctamente'
 			COMMIT
 		END TRY
 		BEGIN CATCH
-			SET @MsgError='ERROR AL INTENTAR ACTUALIZAR LOS DATOS DEL CLIENTE'
+			SET @MsgError='Error al intentar actualizar los datos del cliente'
 			ROLLBACK
 		END CATCH
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='EL CLIENTE CON EL NUMERO DE CEDULA INGRESADO NO ESTA REGISTRADO EN LA BASE DE DATOS'
+		SET @MsgError='El cliente que desea actualizar no se encuentra registrado en la base de datos'
 		ROLLBACK
 	END
 END
@@ -84,17 +93,17 @@ BEGIN TRAN
 			BEGIN TRY
 				DELETE FROM TB_Cliente WHERE Cedula_Cliente=@Cedula_Cliente
 				EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un cliente'
-				SET @MsgSuccess='CLIENTE ELIMINADO EXITOSAMENTE'
+				SET @MsgSuccess='Cliente eliminado exitosamente'
 				COMMIT
 			END TRY
 			BEGIN CATCH
-				SET @MsgError= 'ERROR AL INTENTAR ELIMINAR AL CLIENTE SELECCIONADO'
+				SET @MsgError= 'Error al intentar eliminar al cliente seleccionado'
 				ROLLBACK
 			END CATCH
 		END
 		ELSE
 		BEGIN
-			SET @MsgError='LA CEDULA DEL CLIENTE INGRESADA NO CORRESPONDE A NINGUN CLIENTE REGISTRADO EN LA BASE DE DATOS'
+			SET @MsgError='El cliente que desea eliminar no se encuentra registrado en la base de datos'
 			ROLLBACK
 		END
 END

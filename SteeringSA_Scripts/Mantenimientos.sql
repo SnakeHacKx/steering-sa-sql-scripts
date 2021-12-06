@@ -16,46 +16,55 @@ BEGIN--SI EL MANTENIMIENTO NO CORRESPONDE A NINGUN REPORTE (ES MANTENIMIENTO PRE
 	BEGIN TRAN
 	IF EXISTS(SELECT * FROM Vehiculo WHERE Placa=@Placa_Vehiculo)--Verifica que exista el vehiculo
 	BEGIN
-		IF NOT EXISTS(SELECT * FROM Servicio WHERE Placa=@Placa_Vehiculo AND (@Fecha BETWEEN Fecha_inicio AND Fecha_finalizacion)) OR (@Estado='Realizado')---verifica que el vehiculo no este en servicio para la fecha del mantenimiento si es una receba de mantenimiento, si se permite si es un mantenimiento de emergencia en una fecha de servicio
+		IF NOT EXISTS(SELECT * FROM Servicio WHERE Placa=@Placa_Vehiculo AND (@Fecha BETWEEN Fecha_inicio AND Fecha_finalizacion)) OR (@Estado='Realizado')---verifica que el vehiculo no este en servicio para la fecha del mantenimiento si es una reserva de mantenimiento, si se permite si es un mantenimiento de emergencia en una fecha de servicio
 		BEGIN
 			IF EXISTS(SELECT * FROM Reporte WHERE Cod_reporte=@Cod_reporte AND Placa_Vehiculo=@Placa_Vehiculo) OR (@Cod_reporte='S/R')--Verifica que el codigo de reporte corresponda la vehiculo seleccionado o que sea un mantenimiento preventivo
 			BEGIN
 				IF (Format(@Fecha,'yyyy-MM-dd')>=Format((SELECT Fecha FROM Reporte WHERE Cod_reporte=@Cod_reporte) ,'yyyy-MM-dd')) OR (@Cod_reporte='S/R')--Se verifica que la fecha del mantenimiento no sea menor a la del reporte que atiende a menos que sea sin reporte
 				BEGIN
-					BEGIN TRY
-						INSERT INTO Mantenimiento (Placa_Vehiculo,Cod_reporte,Costo,Fecha,Descripcion,Estado)
-						VALUES(@Placa_Vehiculo,@Cod_reporte,@Costo,@Fecha,@Descripcion,@Estado)
-						EXEC PROC_ACTUALIZAR_ESTADO_REPORTES-- SE ACTUALIZA EL ESTADO DEL REPORTE SELECCIONADO PARA EL MANTENIMIENTO
-						EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo mantenimiento'
-						SET @MsgSuccess ='MANTENIMIENTO REGISTRADO EXITOSAMENTE'
-						COMMIT
-					END TRY
-					BEGIN CATCH
-						SET @MsgError= 'ERROR AL REGISTRAR EL MANTENIMIENTO'
+					IF NOT EXISTS(SELECT * FROM Mantenimiento WHERE Cod_reporte=@Cod_reporte) OR (@Cod_reporte='S/R')--SE VALIDA QUE EL NUEVO REPORTE NO ESTE REGISTRADO A SER ATENDIDO POR OTRO MANTENIMIENTO
+					BEGIN
+						BEGIN TRY
+							INSERT INTO Mantenimiento (Placa_Vehiculo,Cod_reporte,Costo,Fecha,Descripcion,Estado)
+							VALUES(@Placa_Vehiculo,@Cod_reporte,@Costo,@Fecha,@Descripcion,@Estado)
+							EXEC PROC_ACTUALIZAR_ESTADO_REPORTES-- SE ACTUALIZA EL ESTADO DEL REPORTE SELECCIONADO PARA EL MANTENIMIENTO
+							EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo mantenimiento'
+							SET @MsgSuccess ='Mantenimiento registrado exitosamente'
+							COMMIT
+						END TRY
+						BEGIN CATCH
+							SET @MsgError= 'Error al registrar el mantenimiento'
+							ROLLBACK
+						END CATCH
+					END
+					ELSE
+					BEGIN
+						SET @MsgError='No se puede asignar el reporte seleccionado porque ya esta registrado para otro mantenimiento'
+						PRINT'YA SELECCIONADO'
 						ROLLBACK
-					END CATCH
+					END
 				END
 				ELSE
 				BEGIN
-					SET @MsgError= 'NO SE PUEDE REGISTRAR UN MANTENIMIENTO PARA UNA FECHA ANTERIOR AL REPORTE QUE ATIENDE'
+					SET @MsgError= 'No se puede registrar un mantenimiento para una fecha anterior a la fecha de registro del reporte que atiende'
 					ROLLBACK
 				END
 			END
 			ELSE
 			BEGIN
-				SET @MsgError= 'EL REPORTE SELECCIONADO PARA MANTENIMIENTO NO CORRESPONDE A UN REPORTE ASIGNADO AL VEHICULO SELECCIONADO'
+				SET @MsgError= 'El reporte seleccionado no corresponde a un reporte hecho al vehiculo seleccionado para mantenimiento'
 				ROLLBACK
 			END
 		END
 		ELSE
 		BEGIN
-			SET @MsgError='NO SE PUEDE RESERVAR UN MANTENIMIENTO PARA FECHAS EN QUE EL VEHICULO ESTE DE SERVICIO'
+			SET @MsgError='No se puede reservar un mantenimiento para una fecha en que el vehiculo este de servicio'
 			ROLLBACK
 		END
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='NO EXISTE VEHICULO EN LA BASE DE DATOS REGISTRADO CON LA PLACA SELECCIONADA'
+		SET @MsgError='El vehiculo seleccionado no esta registrado en la base de datos'
 		ROLLBACK
 	END
 END
@@ -74,17 +83,17 @@ BEGIN
 		BEGIN TRY
 			DELETE FROM Mantenimiento WHERE Cod_Mantenimiento=@Cod_Mantenimiento
 			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un mantenimiento'
-			SET @MsgSuccess='SE ELIMINO EL MANTENIMIENTO CORRECTAMENTE'
+			SET @MsgSuccess='Se elimino correctamente el mantenimiento'
 			COMMIT
 		END TRY
 		BEGIN CATCH
-			SET @MsgError='OCURRIO UN ERROR AL INTENTAR ELIMINAR EL MANTENIMIENTO SELECCIONADO'
+			SET @MsgError='Ocurrio un error al intentar eliminar el mantenimiento'
 			ROLLBACK
 		END CATCH
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='EL MANTENIMIENTO SELECCIONADO PARA ELIMINAR NO ESTA REGISTRADO EN LA BASE DE DATOS'
+		SET @MsgError='El mantenimiento seleccionado para eliminar no esta registrado en la base de datos'
 		ROLLBACK
 	END
 END
@@ -126,41 +135,41 @@ BEGIN
 							WHERE Cod_Mantenimiento=@Cod_Mantenimiento
 							EXEC PROC_ACTUALIZAR_ESTADO_REPORTES --SE ACTUALIZA EL ESTADO DEL REPORTE SELECCIONADO PARA EL MANTENIMIENTO Y EL QUE FUE REEMPLAZADO
 							EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un mantenimiento'
-							SET @MsgSuccess='DATOS DEL MANTENIMIENTO ACTUALIZADOS CORRECTAMENTE'
+							SET @MsgSuccess='Datos del mantenimiento actualizados correctamente'
 							COMMIT
 						END TRY
 						BEGIN CATCH
-							SET @MsgError= 'ERROR AL INTENTAR ACTUALIZAR LOS DATOS DEL MANTENIMIENTO'
+							SET @MsgError= 'Error al intentar actualizar los datos del mantenimiento'
 							ROLLBACK
 						END CATCH
 					END
 					ELSE
 					BEGIN
-						SET @MsgError='NO SE PUEDE ASIGNAR EL REPORTE SELECCIONADO PORQUE YA ESTA ASIGNADO A OTRO MANTENIMIENTO'
+						SET @MsgError='No se puede asignar el reporte seleccionado porque ya esta asignado en otro mantenimiento'
 						ROLLBACK
 					END
 				END
 				ELSE
 				BEGIN
-					SET @MsgError= 'LA NUEVA FECHA DE MANTENIMIENTO NO DEBE SER MENOR A LA FECHA DEL REPORTE'
+					SET @MsgError= 'La nueva fecha de mantenimiento no puede ser menor a la fecha de reporte'
 					ROLLBACK
 				END
 			END
 			ELSE
 			BEGIN
-				SET @MsgError= 'EL REPORTE SELECCIONADO PARA MANTENIMIENTO NO CORRESPONDE A UN REPORTE ASIGNADO AL VEHICULO SELECCIONADO'
+				SET @MsgError= 'El reporte seleccionado para el mantenimiento no corresponde a un reporte realizado al vehiculo'
 				ROLLBACK
 			END
 		END
 		ELSE
 		BEGIN
-			SET @MsgError='NO SE PUEDE MODIFICAR LA FECHA PARA RECERVAR EL MANTENIMIENTO EN UNA FECHA DE SERVICIO DEL VEHICULO'
+			SET @MsgError='No se puede modificar la fecha del mantenimiento para una fecha en que el vehiculo este en servicio'
 			ROLLBACK
 		END
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='EL MANTENIMIENTO SELECCIONADO NO ESTA REGISTRADO EN LA BASE DE DATOS'
+		SET @MsgError='El mantenimiento seleccionado no esta registrado en la base de datos'
 		ROLLBACK
 	END
 END

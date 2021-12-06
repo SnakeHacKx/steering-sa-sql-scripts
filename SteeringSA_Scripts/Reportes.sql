@@ -11,33 +11,36 @@ ALTER PROC PROC_REGISTRAR_REPORTE(
 AS
 BEGIN
 	BEGIN TRAN
+	--variable para guardar el codigo de reporte
 	DECLARE @Cod_Reporte VARCHAR(10)
+	--Se verifica la fecha de registro del reporte
 	IF @Fecha<=Format(GETDATE(),'yyyy-MM-dd')
 	BEGIN
 		IF EXISTS (SELECT *FROM Vehiculo WHERE Placa=@Placa_Vehiculo)
 		BEGIN
+				--se genera el codigo de reporte con la funcion
 				SET @Cod_Reporte = DBO.FUNC_GENERAR_COD_REPORTE(@Placa_Vehiculo)
 				BEGIN TRY
 					INSERT INTO Reporte(Cod_reporte,Placa_Vehiculo,Fecha,Descripcion)
 					VALUES(@Cod_Reporte,@Placa_Vehiculo,@Fecha,@Descripcion)
 					EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo Reporte'
-					SET @MsgSuccess='REPORTE REGISTRADO EXITOSAMENTE'
+					SET @MsgSuccess='Reporte registrado exitosamente'
 					COMMIT
 				END TRY
 				BEGIN CATCH
-					SET @MsgError= 'ERROR AL INTENTAR REGISTRAR EL REPORTE'
+					SET @MsgError= 'Error al intentar registrar el reporte'
 					ROLLBACK
 				END CATCH
 		END
 		ELSE
 		BEGIN
-			SET @MsgError='EL VEHICULO SELECCIONADO PARA REALIZARLE EL REPORTE NO SE ENCUENTRA REGISTRADO EN LA BASE DE DATOS'
+			SET @MsgError='El vehiculo seleccionado para realizarle un reporte no se encuentra registrado en la base de datos'
 			ROLLBACK
 		END
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='LA FECHA DEL REPORTE NO PUEDE SER MAYOR A LA FECHA ACTUAL'
+		SET @MsgError='La fecha del reporte no puede ser mayor a la actual'
 		ROLLBACK
 	END
 END
@@ -56,17 +59,17 @@ BEGIN
 		BEGIN TRY
 			DELETE FROM Reporte WHERE Cod_reporte=@Cod_Reporte
 			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un reporte'
-			SET @MsgSuccess='REPORTE ELIMINADO CORRECTAMENTE'
+			SET @MsgSuccess='Reporte eliminado correctamente'
 			COMMIT
 		END TRY
 		BEGIN CATCH
-			SET @MsgError='ERROR AL INTENTAR ELIMINAR EL REPORTE SELECCIONADO'
+			SET @MsgError='Error al intentar eliminar el reporte seleccionado'
 			ROLLBACK
 		END CATCH
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='EL REPORTE SELECCIONADO NO CORRESPONDE A UN REPORTE REGISTRADO EN LA BASE DE DATOS'
+		SET @MsgError='El reporte seleccionado no esta registrado en la base de datos'
 		ROLLBACK
 	END
 END
@@ -84,12 +87,12 @@ BEGIN
 	 @Num INT
 	SET @Num =0
 	SET @condicion =0
-	WHILE(@condicion =0)
+	WHILE(@condicion =0)--la condicion no se modifica dentro del ciclo asi que se hace hasta que se salga por la sentencia return
 	BEGIN
-		SET @Codigo = ''+SUBSTRING(@Placa_Vehiculo,1,3)+''+CAST(@Num AS VARCHAR(10))
-		IF NOT EXISTS(SELECT * FROM Reporte WHERE Placa_Vehiculo = @Placa_Vehiculo AND Cod_reporte=@Codigo)
+		SET @Codigo = ''+SUBSTRING(@Placa_Vehiculo,1,3)+''+CAST(@Num AS VARCHAR(10))--el codigo de construye con las primeras 3 letras de la placa del vehiculo y con un numero segun la cantidad de reportes que tenga el vehiculo
+		IF NOT EXISTS(SELECT * FROM Reporte WHERE Placa_Vehiculo = @Placa_Vehiculo AND Cod_reporte=@Codigo)--si verifica si el vehiculo no tiene el codigo generado ya registrado en un reporte
 			RETURN (@Codigo)
-		SET @Num=@Num+1
+		SET @Num=@Num+1--si el vehiculo ya tiene un reporte con el codigo generado, entonces se incrementa el numero que se le asigna al codigo
 	END
 	RETURN '-1'
 END
@@ -112,13 +115,13 @@ BEGIN
 	BEGIN
 		IF EXISTS(SELECT *FROM Mantenimiento WHERE Cod_reporte=@Cod_repote AND Estado='Realizado')--SI EL REPORTE TIENE MANTENIMIENTO REGISTRADO Y EL MANTENIMIENTO FUE HECHO EL REPORTE FUE ATENDIDO
 			SET @Estado='ATENDIDO'
-		ELSE--DE LO CONTRARIO SI ES S/R O EL MANTENIMIENTO ESTA PARA UNA FECHA MAYOR AL DIA ACTUAL ENTONCES SE PONE NO ATENDIDO EL REPORTE
+		ELSE--DE LO CONTRARIO SI ES S/R O EL MANTENIMIENTO NO HA SIDO REALIZADO ENTONCES SE PONE NO ATENDIDO EL REPORTE
 			SET @Estado='NO ATENDIDO'
 		BEGIN TRY
 			UPDATE Reporte SET Estado = @Estado WHERE Cod_reporte=@Cod_repote
 		END TRY
 		BEGIN CATCH
-			RAISERROR('OCURRIO UN ERROR INESPERADO AL ACTUALIZAR LOS ESTADOS DE REPORTES',16,1)
+			RAISERROR('Error inesperado al intentar actualizar el estado de reportes',16,1)
 			ROLLBACK
 			RETURN
 		END CATCH
@@ -129,7 +132,7 @@ END
 GO
 
 --PROCEDIMIENTO PARA ACTUALIZAR DATOS DE LOS REPORTES 
-ALTER PROC PROC_ACTUALIZAR_DATOS_REPORTE(		--el estado no se pasa porque solo se modifica con los mantenimientos 
+ALTER PROC PROC_ACTUALIZAR_DATOS_REPORTE(
 	@Cod_Reporte VARCHAR(10),
 	@Placa_Vehiculo VARCHAR(10),
 	@Descripcion VARCHAR(1500),
@@ -150,25 +153,25 @@ BEGIN
 				Descripcion=@Descripcion,
 				Fecha=@Fecha
 				WHERE Cod_reporte=@Cod_Reporte
-				EXEC PROC_ACTUALIZAR_ESTADO_REPORTES
+				EXEC PROC_ACTUALIZAR_ESTADO_REPORTES --Actualiza el estado del reporte
 				EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un reporte'
-				SET @MsgSuccess='SE ACTUALIZARON LOS DATOS DEL REPORTE EXITOSAMENTE'
+				SET @MsgSuccess='Se actualizaron los datos del reporte exitosamente'
 				COMMIT
 			END TRY
 			BEGIN CATCH
-				SET @MsgError='ERROR AL INTENTAR ACTUALIZAR LOS DATOS DEL REPORTE SELECCIONADO'
+				SET @MsgError='Error al intentar actualizar los datos de un reporte'
 				ROLLBACK
 			END CATCH
 		END
 		ELSE
 		BEGIN
-			SET @MsgError='LA NUEVA FECHA SELECCIONADA NO PUEDE SER MAYOR A LA FECHA DEL MANTENIMIENTO QUE TIENE PROGRAMADO PARA ATENDER ESTE REPORTE'
+			SET @MsgError='La nueva fecha seleccionada no puede ser mayor a la fecha del mantenimiento asociado al reporte'
 			ROLLBACK
 		END
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='EL REPORTE SELECCIONADO NO ESTA REGISTRADO EN LA BASE DE DATOS'
+		SET @MsgError='El reporte seleccionado no esta registrado en la base de datos'
 		ROLLBACK
 	END
 END

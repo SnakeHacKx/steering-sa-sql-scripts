@@ -18,7 +18,7 @@ BEGIN TRAN
 			INSERT INTO Vehiculo (Placa,Modelo_vehiculo,Tipo,Estado,pasajero,Tipo_de_combustible,Color)
 			VALUES(@Placa,@Modelo_vehiculo,@Tipo,'DISPONIBLE',@pasajero,@Tipo_de_combustible,@Color)
 			EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo Vehiculo'
-			SET @MsgSuccess='VEHICULO REGISTRADO CORRECTAMENTE'
+			SET @MsgSuccess='Vehiculo registrado correctamente'
 			COMMIT TRAN--CONFIRMACION DE LA TRANSACCION
 		END TRY
 		BEGIN CATCH
@@ -58,24 +58,24 @@ BEGIN TRAN
 				Color=@Color
 				WHERE Placa=@Placa;
 				EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un vehiculo'
-				SET @MsgSuccess='DATOS EL VEHICULO ACTUALIZADOS CORRECTAMENTE'
+				SET @MsgSuccess='Datos del vehiculo actualizados correctamente'
 				COMMIT TRAN
 			END TRY
 			BEGIN CATCH
-				SET @MsgError='ERROR EN LA ACTUALIZACION DE LOS DATOS DEL VEHICULO SELECCIONADO'
+				SET @MsgError='Error en la actualizacion de datos del vehiculo'
 				ROLLBACK
 			END CATCH
 		END
 	ELSE
 	BEGIN
-		SET @MsgError='NO EXISTE UN VEHICULO REGISTRADO CON LA PLACA SELECCIONADA'
+		SET @MsgError='No existe un vehiculo registrado con la placa seleccionada'
 		ROLLBACK
 	END
 END
 GO
 --PROCEDIMIENTO PARA ACTUALIZAR EL ESTADO DE LOS VEHICULOS SEGUN LA FECHA Y LOS SERVICIOS
 ALTER PROC PROC_ACTUALIZAR_ESTADO_VEHICULOS
-AS--ESTA PRECEDIMIENTO TIENE UN CURSOS QUE ACTUALIZARA EL ESTADO DE LOS VEHICULOS SEGUN LA FECHA ACTUAL Y LA FECHA DE LOS SERVICIOS ASIGNADOS
+AS--ESTA PRECEDIMIENTO TIENE UN CURSOR QUE ACTUALIZARA EL ESTADO DE LOS VEHICULOS SEGUN LA FECHA ACTUAL Y LA FECHA DE LOS SERVICIOS ASIGNADOS
 BEGIN
 BEGIN TRAN
 	DECLARE @Fecha_Actual DATE,
@@ -92,7 +92,7 @@ BEGIN TRAN
 	WHILE (@@FETCH_STATUS=0)
 	BEGIN
 		BEGIN TRY
-			IF (@Fecha_Inicio<=@Fecha_Actual) AND (@Fecha_Final>=@Fecha_Actual)
+			IF (@Fecha_Inicio<=@Fecha_Actual) AND (@Fecha_Final>=@Fecha_Actual)--Si la fecha actual esta entre las fecha de inicio y final del servicio del vehiculo entonces no esta disponible
 			BEGIN
 				UPDATE V_ESTADO_VEHICULO_FECHA_ACTUAL SET Estado='NO DISPONIBLE' WHERE Placa =@Placa_Vehiculo
 				INSERT INTO @Modificados (placa) VALUES (@Placa_Vehiculo)
@@ -127,17 +127,17 @@ BEGIN TRAN
 		BEGIN TRY
 			DELETE FROM Vehiculo WHERE Placa=@Placa_Vehiculo
 			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un vehiculo'
-			SET @MsgSuccess='VEHICULO ELIMINADO CORRECTAMENTE'
+			SET @MsgSuccess='Vehiculo eliminado correctamente'
 			COMMIT
 		END TRY
 		BEGIN CATCH
-			SET @MsgError=('ERROR AL INTENTAR ELIMINAR EL VEHICULO SELECCIONADO')
+			SET @MsgError=('Error al intentar eliminar el vehiculo seleccionado')
 			ROLLBACK
 		END CATCH
 	END
 	ELSE
 	BEGIN
-		SET @MsgError=('LA PLACA INTRODUCIDA NO CORRESPONDE A NINGUN VEHICULO DE LA FLOTA')
+		SET @MsgError=('La placa introducida no corresponde a ningun vehiculo de la flota')
 		ROLLBACK
 	END
 END

@@ -8,11 +8,11 @@ BEGIN TRAN
 		INSERT INTO Tipo_servicios(Nombre_servicio,Costo_servicio,Descripcion_servicio)
 		VALUES(@Nombre,@Costo,@Descripcion)
 		EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo tipo de servicio'
-		SET @MsgSuccess='TIPO DE SERVICIO REGISTRADO EXITOSAMENTE'
+		SET @MsgSuccess='Tipo de servicio registrado correctamente'
 		COMMIT TRAN
 	END TRY
 	BEGIN CATCH
-		SET @MsgError='OCURRIO UN ERROR INESPERADO AL INTENTAR REGISTRAR ESTE NUEVO SERVICIO'
+		SET @MsgError='Error al intentar registrar un nuevo tipo de servicio'
 		ROLLBACK
 	END CATCH
 END
@@ -32,17 +32,17 @@ BEGIN TRAN
 			Descripcion_servicio=@Descripcion
 			WHERE Cod_tipo_servicio=@Codigo
 			EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un tipo de servicio'
-			SET @MsgSuccess='DATOS DEL TIPO DE SERVICIO ACTUALIZADOS EXITOSAMENTE'
+			SET @MsgSuccess='Datos del tipo de servicio actualizados correctamente'
 			COMMIT
 		END TRY
 		BEGIN CATCH
-			SET @MsgError='ERROR AL INTENTAR ACTUALIZAR LOS DATOS DEL TIPO DE SERVICIO'
+			SET @MsgError='Error al intentar actualizar los datos del tipo de servicio'
 			ROLLBACK
 		END CATCH
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='NO EXISTE EL TIPO DE SERVICIO ASOCIADO AL CODIGO QUE HA INGRESADO'
+		SET @MsgError='No existe el tipo de servicio asociado al codigo que ha ingresado'
 		ROLLBACK
 	END
 END
@@ -57,17 +57,17 @@ BEGIN TRAN
 		BEGIN TRY
 			DELETE FROM Tipo_servicios WHERE Cod_tipo_servicio=@Codigo_Tipo_Servicio
 			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un tipo de servicio'
-			SET @MsgSuccess = 'TIPO DE SERVICIO ELIMINADO CORRECTAMENTE'
+			SET @MsgSuccess = 'Tipo de servicio eliminado correctamente'
 			COMMIT
 		END TRY
 		BEGIN CATCH
-			SET @MsgError= 'ERROR AL INTENTAR ELIMINAR EL TIPO DE SERVICIO SELECCIONADO'
+			SET @MsgError= 'Error al intentar eliminar el tipo de servicio'
 			ROLLBACK
 		END CATCH
 	END
 	ELSE
 	BEGIN
-		SET @MsgError=('EL CODIGO DE TIPO DE SERVICIO SELECCIONADO NO ESTA REGISTRADO EN LA BASE DE DATOS')
+		SET @MsgError=('El tipo de servicio que se quiere eliminar no esta registrado en la base de datos')
 		ROLLBACK
 	END
 END
@@ -99,3 +99,10 @@ BEGIN
 END
 GO
 
+--OBTENER NOMBRE DEL TIPO DE SERVICIO
+CREATE PROC PROC_OBTENER_NOMBRES_T_SERVICIO
+AS
+BEGIN
+	SELECT [Nombre del servicio] FROM V_GENERALES_DE_TIPO_DE_SERVICIO
+END
+GO

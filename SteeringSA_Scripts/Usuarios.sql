@@ -3,7 +3,7 @@
 --PROCEDIMIENTO PARA REGISTRAR EN UN HISTORIAL TODAS LA OPERACIONES REALIZADAS POR LOS USUARIOS EN LA BASE DE DATOS
 ALTER PROC PROC_REGISTRAR_HISTORIAL(
 	@Accion VARCHAR(20),--INSERTAR/ELIMINAR/ACTUALIZAR
-	@Descripcion VARCHAR(50)--INDICAR LA TABLA EN LA QUE SE REALIZAR LA ACCION
+	@Descripcion VARCHAR(50)
 )
 AS--ESTE PROCEDIMIENTO SE INCLUYE EN CADA UNO DE LOS PROCEDIMIENTOS PARA LAS OPERACIONES BASICAS
 BEGIN
@@ -158,19 +158,27 @@ BEGIN
 	BEGIN TRAN
 	IF EXISTS(SELECT * FROM V_VER_USUARIOS WHERE Usuario=@User_name)
 	BEGIN
-		DECLARE @query VARCHAR(100)
-		BEGIN TRY
-			SET @query ='ALTER USER '+@User_name+' WITH NAME = '+@new_name
-			EXEC(@query)
-			SET @query ='ALTER LOGIN '+@User_name+' WITH NAME = '+@new_name
-			EXEC(@query)
-			SET @MsgSuccess='Nombre de usuario actualizado correctamente'
-			COMMIT
-		END TRY
-		BEGIN CATCH
-			SET @MsgError='Ocurrio un error al intentar cambiar el nombre de usuario'
+		IF NOT EXISTS(SELECT * FROM V_VER_USUARIOS WHERE Usuario=@new_name)
+		BEGIN
+			DECLARE @query VARCHAR(100)
+			BEGIN TRY
+				SET @query ='ALTER USER '+@User_name+' WITH NAME = '+@new_name
+				EXEC(@query)
+				SET @query ='ALTER LOGIN '+@User_name+' WITH NAME = '+@new_name
+				EXEC(@query)
+				SET @MsgSuccess='Nombre de usuario actualizado correctamente'
+				COMMIT
+			END TRY
+			BEGIN CATCH
+				SET @MsgError='Ocurrio un error al intentar cambiar el nombre de usuario'
+				ROLLBACK
+			END CATCH
+		END
+		ELSE
+		BEGIN
+			SET @MsgError='El nuevo nombre de usuario ya se encuentra en uso'
 			ROLLBACK
-		END CATCH
+		END
 	END
 	ELSE
 	BEGIN

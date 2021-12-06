@@ -8,7 +8,7 @@ ALTER PROC PROC_REGISTRAR_CONDUCTOR(
 	@fechaNac date,
 	@tipoSangre VARCHAR(3),
 	@tipoLicencia VARCHAR(2),
-	@MsgSuccess VARCHAR(50)='' OUTPUT,
+	@MsgSuccess VARCHAR(50)='' OUTPUT,--son variables solo para guardar mensajes y mostrarlos en la interfaz
 	@MsgError VARCHAR(50)='' OUTPUT
 )
 AS
@@ -16,17 +16,25 @@ AS
 BEGIN TRAN
 	IF NOT EXISTS(SELECT Cedula FROM Conductor WHERE Cedula = @cedula)
 	BEGIN
-		BEGIN TRY--INTENTAR INGRESAR LOS DATOS A LA TABLA 
-			INSERT INTO Conductor(Cedula, Nombre, Apellido, Telefono, Fecha_de_nacimiento, Tipo_de_sangre, Tipo_de_licencia)
-			VALUES(@cedula, @nombre, @apellido,@telefono, @fechaNac, @tipoSangre, @tipoLicencia)
-			EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo conductor'
-			SET @MsgSuccess='Conductor registrado correctamente.'
-			COMMIT TRAN--CONFIRMACION DE LA TRANSACCION
-		END TRY
-		BEGIN CATCH
-			SET @MsgError= 'Ocurrió un errror inesperado al intentar registrar el conductor, inténtelo nuevamente'--MENSAJE EN CASO DE ERROR DE REGISTRO
+		IF DATEDIFF(YEAR,@fechaNac,format(GETDATE(),'yyyy-MM-dd')) >= 18 --datediff year calcula la cantidad de años de diferencia entre 2 fechas 
+		BEGIN
+			BEGIN TRY--INTENTAR INGRESAR LOS DATOS A LA TABLA 
+				INSERT INTO Conductor(Cedula, Nombre, Apellido, Telefono, Fecha_de_nacimiento, Tipo_de_sangre, Tipo_de_licencia)
+				VALUES(@cedula, @nombre, @apellido,@telefono, @fechaNac, @tipoSangre, @tipoLicencia)
+				EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo conductor'
+				SET @MsgSuccess='Conductor registrado correctamente.'
+				COMMIT TRAN--CONFIRMACION DE LA TRANSACCION
+			END TRY
+			BEGIN CATCH
+				SET @MsgError= 'Ocurrió un errror inesperado al intentar registrar el conductor, inténtelo nuevamente'--MENSAJE EN CASO DE ERROR DE REGISTRO
+				ROLLBACK TRAN--CANCELACION DE LA TRANSACCION
+			END CATCH
+		END
+		ELSE
+		BEGIN
+			SET @MsgError='El conductor no puede ser menor de edad'
 			ROLLBACK TRAN--CANCELACION DE LA TRANSACCION
-		END CATCH
+		END
 	END
 	ELSE
 	BEGIN
@@ -50,27 +58,35 @@ ALTER PROC PROC_ACTUALIZAR_CONDUCTOR(
 AS
 	IF EXISTS(SELECT Cedula FROM Conductor WHERE Cedula = @cedula)
 	BEGIN
-		BEGIN TRAN
-			BEGIN TRY
-				UPDATE Conductor SET Nombre=@nombre,
-				Apellido=@apellido,
-				Telefono=@telefono,
-				Fecha_de_nacimiento=@fechaNac,
-				Tipo_de_sangre=@tipoSangre,
-				Tipo_de_licencia=@tipoLicencia
-				WHERE Cedula=@cedula;
-				EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un conductor'
-				SET @MsgSuccess='DATOS DEL CONDUCTOR ACTUALIZADOS EXITOSAMENTE'
-				COMMIT TRAN
-			END TRY
-			BEGIN CATCH
-				SET @MsgError='ERROR EN LA ACTUALIZACION DE LOS DATOS DEL CONDUCTOR'
-				ROLLBACK TRAN
-			END CATCH
+		IF DATEDIFF(YEAR,@fechaNac,format(GETDATE(),'yyyy-MM-dd')) >= 18
+		BEGIN
+			BEGIN TRAN
+				BEGIN TRY
+					UPDATE Conductor SET Nombre=@nombre,
+					Apellido=@apellido,
+					Telefono=@telefono,
+					Fecha_de_nacimiento=@fechaNac,
+					Tipo_de_sangre=@tipoSangre,
+					Tipo_de_licencia=@tipoLicencia
+					WHERE Cedula=@cedula;
+					EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un conductor'
+					SET @MsgSuccess='Datos del conductor actualizados correctamente'
+					COMMIT TRAN
+				END TRY
+				BEGIN CATCH
+					SET @MsgError='Error en la actualizacion de datos del conductor'
+					ROLLBACK TRAN
+				END CATCH
+		END
+		ELSE
+		BEGIN
+			SET @MsgError='El conductor no puede ser menor de edad'
+			ROLLBACK TRAN--CANCELACION DE LA TRANSACCION
+		END
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='NO HAY CONDUCTOR REGISTRADO CON ESE NUMERO DE CÉDULA'
+		SET @MsgError='Actualmente no hay conductor registrado con el numero de cedula especificado'
 		ROLLBACK
 	END
 GO
@@ -87,17 +103,17 @@ BEGIN
 		BEGIN TRY
 			DELETE FROM Conductor WHERE cedula = @Cedula
 			EXEC PROC_REGISTRAR_HISTORIAL 'Eliminar','Se elimino un conductor'
-			SET @MsgSuccess='EL CONDUCTOR HA SIDO ELIMINADO EXITOSAMENTE'
+			SET @MsgSuccess='El conductor ha sido eliminado exitosamente'
 			COMMIT
 		END TRY
 		BEGIN CATCH
-			SET @MsgError='ERROR AL INTENTAR ELIMINAR EL CONDUCTOR SELECCIONADO'
+			SET @MsgError='Error al intentar eliminar el conductor seleccionado'
 			ROLLBACK
 		END CATCH
 	END
 	ELSE
 	BEGIN
-		SET @MsgError='EL CONDUCTOR SELECCIONADO NO ESTA REGISTRADO EN LA BASE DE DATOS'
+		SET @MsgError='El conductor seleccionado no esta registrado en la base de datos'
 		ROLLBACK
 	END
 END
@@ -115,21 +131,22 @@ GO
 
 
 --BUSCAR CONDUCTOR POR CEDULA 
-CREATE PROC PROC_BUSCAR_CEDULA_CONDUCTOR(
-	@Cedula VARCHAR(70),
+ALTER PROC PROC_BUSCAR_CEDULA_CONDUCTOR(
+	@Cedula VARCHAR(15),
 	@MsgError VARCHAR(50)='' OUTPUT
 )
 AS
 BEGIN
-	IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE [N° Cedula]=@Cedula)
+	IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE [N° Cedula] LIKE @Cedula+'%')
 	BEGIN
 		SELECT *FROM V_GENERALES_DE_CONDUCTOR
-		WHERE [N° Cedula]=@Cedula
+		WHERE [N° Cedula] LIKE @Cedula+'%'
 	END
 	ELSE
 		SET @MsgError='CONDUCTOR NO ENCONTRADO'
 END
 GO
+
 
 ---FILTROS
 ALTER PROC PROC_FILTRO_CONDUCTOR(

@@ -1,4 +1,4 @@
----HOJA DE DATOS PRE CARGADOS PARA PRUEBAS ---
+---HOJA DE DATOS PRECARGADOS PARA PRUEBAS ---
 
 --DATOS DE LA TABLA CONDUCTORES
 EXEC PROC_REGISTRAR_CONDUCTOR '07-0124-000325','Juan','Pinilla','6742-7752',"04/13/1997",'B+','C'
@@ -17,7 +17,7 @@ EXEC PROC_REGISTRAR_VEHICULO 'A45872','Elantra','Sedan','5','Gasolina 95','Rojo'
 EXEC PROC_REGISTRAR_VEHICULO 'E14F25','Elantra','Sedan','5','Gasolina 95','Blanco'
 EXEC PROC_REGISTRAR_VEHICULO '558214','R300','Moto','2','Gasolina 95','Gris'
 EXEC PROC_REGISTRAR_VEHICULO 'BO0134','N400','Minivan','7','Gasolina 95','Negra'
-EXEC PROC_REGISTRAR_VEHICULO '122DS1','Coaster','Autobuz','8+','Diesel','Gris'
+EXEC PROC_REGISTRAR_VEHICULO '122DS1','Coaster','Autobus','8+','Diesel','Gris'
 
 --DATOS DE LA TABLA TIPO DE SERVICIO
 EXEC PROC_REGISTRAR_TIPO_SERVICIO 'Transporte','35.00','Transporte de personas para eventos o paseos solo de ida o regreso'
