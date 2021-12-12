@@ -219,7 +219,7 @@ BEGIN
 		BEGIN
 			SELECT * FROM V_GENERALES_DE_MANTENIMIENTO
 			WHERE (([Costo total] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
-				AND(([Fecha de realizacion] BETWEEN @Fecha_inicial AND @Fecha_final) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
+				AND((CONVERT(DATETIME,[Fecha de realizacion],103) BETWEEN @Fecha_inicial AND @Fecha_final) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
 				AND([Estado Actual]=@Estado OR @Estado IS NULL)
 				AND([Placa de vehiculo]=@Placa_vehiculo OR @Placa_vehiculo IS NULL)
 				AND([Tipo de vehiculo]=@Tipo_vehiculo OR @Tipo_vehiculo IS NULL)

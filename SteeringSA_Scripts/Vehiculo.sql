@@ -38,7 +38,7 @@ ALTER PROC PROC_ACTUALIZAR_DATOS_VEHICULO(
 	@Placa varchar(10),
 	@Modelo_vehiculo varchar(10),
 	@Tipo varchar(15),
-	@pasajero smallint,
+	@pasajero varchar(2),
 	@Tipo_de_combustible varchar(12),
 	@Color varchar(10),
 	@MsgSuccess VARCHAR(50)='' OUTPUT,
@@ -172,8 +172,8 @@ GO
 ALTER PROC PROC_FILTRO_VEHICULO(
 	@Modelo_vehiculo varchar(10) =NULL,
 	@Tipo varchar(15)=NULL,
-	@pasajero_init smallint=NULL, --rango inferior
-	@pasajero_top smallint=NULL,	--rango superior
+	@pasajero_init varchar(2)=NULL, --rango inferior
+	@pasajero_top varchar(2)=NULL,	--rango superior
 	@Tipo_de_combustible varchar(12)=NULL,
 	@Estado_vehiculo varchar(15) =NULL,
 	@Color varchar(10)=NULL,

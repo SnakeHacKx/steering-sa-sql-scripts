@@ -215,7 +215,7 @@ BEGIN
 	IF (@Fecha_inicio<=@Fecha_final) OR (@Fecha_inicio IS NULL AND @Fecha_final IS NULL)
 	BEGIN
 		SELECT * FROM V_GENERALES_DE_REPORTE
-		WHERE (([Fecha de reporte] BETWEEN @Fecha_inicio AND @Fecha_final) OR (@Fecha_inicio IS NULL AND @Fecha_final IS NULL))--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
+		WHERE ((CONVERT(DATETIME,[Fecha de reporte],103) BETWEEN @Fecha_inicio AND @Fecha_final) OR (@Fecha_inicio IS NULL AND @Fecha_final IS NULL))--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
 			AND (Estado =@Estado_reporte OR @Estado_reporte IS NULL)															--en caso de que no haya sido seleccionado el parametro como filtro entonces vendra como Null lo que hace que la condicion sea true pero no busca en la base de datos
 	END
 	ELSE

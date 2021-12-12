@@ -304,7 +304,7 @@ BEGIN
 				AND([Cedula de Conductor] = @Cedula_Conductor OR @Cedula_Conductor IS NULL)
 				AND([Placa de vehiculo] = @Placa_Vehiculo OR @Placa_Vehiculo IS NULL)
 				AND([Tipo de servicio]=@Tipo_Servicio OR @Tipo_Servicio IS NULL)
-				AND((([Fecha de inicio] BETWEEN @Fecha_inicial AND @Fecha_final)AND([Fecha de finalizacion] BETWEEN @Fecha_inicial AND @Fecha_final)) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
+				AND(((CONVERT(DATETIME,[Fecha de inicio],103) BETWEEN @Fecha_inicial AND @Fecha_final)AND(CONVERT(DATETIME,[Fecha de finalizacion],103) BETWEEN @Fecha_inicial AND @Fecha_final)) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
 				AND(([Costo total] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
 		END
 		ELSE
@@ -314,3 +314,4 @@ BEGIN
 		SET @MsgError='INTERVALO DE FECHA NO VALIDO ¡VERIFIQUE LOS VALORES!'
 END
 GO
+
