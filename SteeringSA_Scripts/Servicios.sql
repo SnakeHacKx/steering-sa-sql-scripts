@@ -8,6 +8,7 @@ ALTER PROC PROC_REGISTRAR_SERVICIO(
 @Placa_Vehiculo varchar(10),
 @F_Inicio datetime,
 @F_Final datetime,
+@Descripcion_servicio varchar(1500),
 @MsgSuccess VARCHAR(50) ='' OUTPUT,
 @MsgError VARCHAR(50) ='' OUTPUT
 )
@@ -32,8 +33,8 @@ BEGIN TRAN
 						SET @Monto_Total = DBO.FUNC_CALCULAR_MONTO_TOTAL_SERVICIO(@F_Inicio,@F_Final,@Codigo_Tipo_servicio) --SE CALCULA EL MONTO TOTAL
 						BEGIN
 							BEGIN TRY --INICIO DE LA INSERCION EN LA TABLA SERVICIO
-								INSERT INTO Servicio(Cod_tipo_servicio,Cedula_Conductor,Placa,Cedula_Cliente,Fecha_inicio,Fecha_finalizacion,Monto_Total_Servicio)
-								VALUES(@Codigo_Tipo_servicio,@Cedula_Conductor,@Placa_Vehiculo,@Cedula_Cliente,@F_Inicio,@F_Final,@Monto_Total)
+								INSERT INTO Servicio(Cod_tipo_servicio,Cedula_Conductor,Placa,Cedula_Cliente,Fecha_inicio,Fecha_finalizacion,Monto_Total_Servicio,Descripcion_servicio)
+								VALUES(@Codigo_Tipo_servicio,@Cedula_Conductor,@Placa_Vehiculo,@Cedula_Cliente,@F_Inicio,@F_Final,@Monto_Total,@Descripcion_servicio)
 								EXEC PROC_ACTUALIZAR_ESTADO_VEHICULOS
 								EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo servicio'
 								SET @MsgSuccess='Servicio registrado exitosamente'
@@ -93,6 +94,7 @@ ALTER PROC PROC_ACTUALIZAR_DATOS_SERVICIO(
 @Cedula_Cliente VARCHAR(15),
 @Fecha_inicio DATE,
 @Fecha_finalizacion DATE,
+@Descripcion_servicio varchar(1500),
 @MsgSuccess VARCHAR(50) ='' OUTPUT,
 @MsgError VARCHAR(50) ='' OUTPUT
 )
@@ -120,6 +122,7 @@ BEGIN
 								Placa= @Placa,
 								Fecha_inicio=@Fecha_inicio,
 								Fecha_finalizacion=@Fecha_finalizacion,
+								Descripcion_servicio=@Descripcion_servicio,
 								Monto_Total_Servicio=DBO.FUNC_CALCULAR_MONTO_TOTAL_SERVICIO(@Fecha_inicio,@Fecha_finalizacion,@Cod_tipo_servicio)
 								WHERE Cod_Servicio=@Cod_Servicio
 								EXEC PROC_ACTUALIZAR_ESTADO_VEHICULOS --solo actualiza el estado del vehiculo asignado
@@ -302,7 +305,7 @@ BEGIN
 			SELECT * FROM V_GENERALES_DE_SERVICIO
 			WHERE ([Cedula de Cliente]=@Cedula_Cliente OR @Cedula_Cliente IS NULL)
 				AND([Cedula de Conductor] = @Cedula_Conductor OR @Cedula_Conductor IS NULL)
-				AND([Placa de vehiculo] = @Placa_Vehiculo OR @Placa_Vehiculo IS NULL)
+				AND(([Placa de vehiculo] LIKE @Placa_Vehiculo+'%') OR @Placa_Vehiculo IS NULL)
 				AND([Tipo de servicio]=@Tipo_Servicio OR @Tipo_Servicio IS NULL)
 				AND(((CONVERT(DATETIME,[Fecha de inicio],103) BETWEEN @Fecha_inicial AND @Fecha_final)AND(CONVERT(DATETIME,[Fecha de finalizacion],103) BETWEEN @Fecha_inicial AND @Fecha_final)) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
 				AND(([Costo total] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))

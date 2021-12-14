@@ -80,7 +80,6 @@ CREATE TABLE Tipo_servicios(
 	Cod_tipo_servicio INT IDENTITY(1,1),
 	Nombre_servicio VARCHAR(40) NOT NULL,
 	Costo_servicio MONEY NOT NULL,--Costo por dia 
-	Descripcion_servicio VARCHAR(1500)DEFAULT(''),
 	PRIMARY KEY (Cod_tipo_servicio)
 );
 GO
@@ -96,6 +95,7 @@ CREATE TABLE Servicio(
 	Fecha_inicio DATE NOT NULL,
 	Fecha_finalizacion DATE NOT NULL,
 	Monto_Total_Servicio MONEY NOT NULL,--se calcula segun la cantidad de dias del servicio y el costo por dia del tipo de servicio que sea
+	Descripcion_servicio VARCHAR(1500),
 	PRIMARY KEY (Cod_Servicio),
 	FOREIGN KEY(Cod_tipo_servicio) REFERENCES Tipo_servicios(Cod_tipo_servicio),
 	FOREIGN KEY (Cedula_Conductor) REFERENCES Conductor(Cedula),

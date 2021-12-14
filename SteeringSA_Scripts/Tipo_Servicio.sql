@@ -1,12 +1,12 @@
 --TIPO DE SERVICIO
 --REGISTRAR NUEVO TIPO DE SERVICIO
-ALTER PROC PROC_REGISTRAR_TIPO_SERVICIO(@Nombre VARCHAR(40),@Costo MONEY,@Descripcion VARCHAR(1500),@MsgSuccess VARCHAR(50)='' OUTPUT,@MsgError VARCHAR(50)='' OUTPUT)
+ALTER PROC PROC_REGISTRAR_TIPO_SERVICIO(@Nombre VARCHAR(40),@Costo MONEY,@MsgSuccess VARCHAR(50)='' OUTPUT,@MsgError VARCHAR(50)='' OUTPUT)
 AS
 BEGIN
 BEGIN TRAN
 	BEGIN TRY
-		INSERT INTO Tipo_servicios(Nombre_servicio,Costo_servicio,Descripcion_servicio)
-		VALUES(@Nombre,@Costo,@Descripcion)
+		INSERT INTO Tipo_servicios(Nombre_servicio,Costo_servicio)
+		VALUES(@Nombre,@Costo)
 		EXEC PROC_REGISTRAR_HISTORIAL 'Insertar','Se registro un nuevo tipo de servicio'
 		SET @MsgSuccess='Tipo de servicio registrado correctamente'
 		COMMIT TRAN
@@ -19,7 +19,7 @@ END
 GO
 
 --PROCEDIMIENTO PARA ACTUALIZAR DATOS DE LOS TIPOS DE SERVICIO
-ALTER PROC PROC_ACTUALIZAR_DATOS_T_SERVICIOS(@Codigo INT, @Nombre VARCHAR(40),@Costo MONEY,@Descripcion VARCHAR(1500),@MsgSuccess VARCHAR(50)='' OUTPUT,@MsgError VARCHAR(50) =''OUTPUT)
+ALTER PROC PROC_ACTUALIZAR_DATOS_T_SERVICIOS(@Codigo INT, @Nombre VARCHAR(40),@Costo MONEY,@MsgSuccess VARCHAR(50)='' OUTPUT,@MsgError VARCHAR(50) =''OUTPUT)
 AS
 BEGIN
 BEGIN TRAN
@@ -28,8 +28,7 @@ BEGIN TRAN
 		BEGIN TRY
 			UPDATE Tipo_servicios SET
 			Nombre_servicio=@Nombre,
-			Costo_servicio=@Costo,
-			Descripcion_servicio=@Descripcion
+			Costo_servicio=@Costo
 			WHERE Cod_tipo_servicio=@Codigo
 			EXEC PROC_REGISTRAR_HISTORIAL 'Actualizar','Se actualizaron los datos de un tipo de servicio'
 			SET @MsgSuccess='Datos del tipo de servicio actualizados correctamente'
@@ -73,6 +72,14 @@ BEGIN TRAN
 END
 GO
 
+--OBTENER NOMBRE DEL TIPO DE SERVICIO
+CREATE PROC PROC_OBTENER_NOMBRES_T_SERVICIO
+AS
+BEGIN
+	SELECT [Nombre del servicio] FROM V_GENERALES_DE_TIPO_DE_SERVICIO
+END
+GO
+
 --MOSTRAR TODOS
 ALTER PROC PROC_LISTAR_TODOS_T_SERVICIOS
 AS
@@ -82,27 +89,46 @@ BEGIN
 END
 GO
 
---BUSCAR POR CODIGO TIPO DE servicio
-CREATE PROC PROC_BUSCAR_CODIGO_TIPO_SERVICIO(
-	@Codigo_Tipo_Servicio INT,
+--BUSCAR POR CODIGO TIPO DE TIPO DE SERVICIO
+ALTER PROC PROC_BUSCAR_CODIGO_TIPO_SERVICIO(
+	@Cod_tipo_servicio INT,
 	@MsgError VARCHAR(50)='' OUTPUT
 )
 AS
 BEGIN
-	IF EXISTS(SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO WHERE Codigo=@Codigo_Tipo_Servicio)
+	IF EXISTS(SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO WHERE Codigo=@Cod_tipo_servicio)
 	BEGIN
 		SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO 
-		WHERE Codigo=@Codigo_Tipo_Servicio
+		WHERE Codigo=@Cod_tipo_servicio
 	END
 	ELSE
 		SET @MsgError='TIPO DE SERVICIO NO ENCONTRADO'
 END
 GO
 
---OBTENER NOMBRE DEL TIPO DE SERVICIO
-CREATE PROC PROC_OBTENER_NOMBRES_T_SERVICIO
+
+
+--FILTRO 
+ALTER PROC PROC_FILTRO_TIPO_SERVICIO(
+	@Nombre_Servicio VARCHAR(40)=NULL,
+	@Costo_inicial MONEY =NULL,
+	@Costo_final MONEY =NULL,
+	@MsgError VARCHAR(50)='' OUTPUT
+)
 AS
 BEGIN
-	SELECT [Nombre del servicio] FROM V_GENERALES_DE_TIPO_DE_SERVICIO
+	IF (@Costo_inicial<@Costo_final) OR(@Costo_inicial IS NULL AND @Costo_final IS NULL)
+	BEGIN
+		IF EXISTS (SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO WHERE ([Costo diario] BETWEEN @Costo_inicial AND @Costo_final) OR ([Nombre del servicio] LIKE @Nombre_Servicio+'%'))
+		BEGIN
+			SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO
+			WHERE (([Costo diario] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
+			AND(([Nombre del servicio] LIKE @Nombre_Servicio+'%') OR (@Nombre_Servicio IS NULL))
+		END
+		ELSE
+			SET @MsgError='NO EXISTEN REGISTROS QUE CUMPLAN LOS PARAMETROS DE FILTRO ESTABLECIDOS'
+	END
+	ELSE
+		SET @MsgError='Rango de costos introducidos no validos, verifique'
 END
 GO

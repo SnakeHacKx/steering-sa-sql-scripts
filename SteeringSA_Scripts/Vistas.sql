@@ -13,14 +13,15 @@ AS
 	SELECT S.Cod_Servicio AS 'Codigo',C.Nombre+' '+C.Apellido AS 'Conductor',
 	V.Placa'Placa de vehiculo',V.Tipo AS 'Tipo de vehiculo',
 	C.Cedula AS 'Cedula de Conductor',
-	V.Color AS 'Color de Vehiculo',T.Nombre_servicio AS'Tipo de servicio'
+	V.Color AS 'Color de Vehiculo',T.Nombre_servicio AS'Tipo de servicio',
+	T.Cod_tipo_servicio AS 'Código de tipo'
 	,FORMAT(S.Fecha_inicio,'dd-MM-yyyy') AS 'Fecha de inicio',
 	FORMAT(S.Fecha_finalizacion,'dd-MM-yyyy') AS 'Fecha de finalizacion',
-	S.Monto_Total_Servicio AS 'Costo total',
+	ROUND(S.Monto_Total_Servicio,2,1) AS 'Costo total',
 	CL.Nombre_Cliente+' '+CL.Apellido_Cliente AS 'Cliente',
 	CL.Cedula_Cliente AS 'Cedula de Cliente',
 	DATEDIFF(DAY,S.Fecha_inicio,S.Fecha_finalizacion) AS 'Duracion',
-	T.Descripcion_servicio AS 'Descripcion'
+	S.Descripcion_servicio AS 'Descripcion'
 	FROM Servicio S
 	INNER JOIN Conductor C ON S.Cedula_Conductor=C.Cedula
 	INNER JOIN Vehiculo V ON S.Placa = V.Placa
@@ -33,7 +34,6 @@ ALTER VIEW V_GENERALES_DE_MANTENIMIENTO
 AS
 	SELECT M.Cod_Mantenimiento AS 'Codigo de mantenimiento',
 	V.Placa AS 'Placa de vehiculo',V.Tipo AS 'Tipo de vehiculo',
-	V.Modelo_vehiculo AS 'Modelo de vehiculo',
 	M.Cod_reporte AS 'Reporte',
 	FORMAT(M.Fecha,'dd-MM-yyyy') AS 'Fecha de realizacion',M.Costo AS 'Costo total',
 	M.Estado AS 'Estado Actual',
@@ -80,7 +80,7 @@ GO
 ALTER VIEW V_GENERALES_DE_TIPO_DE_SERVICIO
 AS
 	SELECT Cod_tipo_servicio AS 'Codigo',Nombre_servicio AS 'Nombre del servicio',
-	Costo_servicio AS 'Costo diario',Descripcion_servicio AS 'Descripcion' FROM Tipo_servicios
+	ROUND(Costo_servicio,2,1) AS 'Costo diario' FROM Tipo_servicios
 GO
 
 --VISTAR GENERAL DE HISTORIAL DE ACCIONES SOBRE LA BASE DE DATOS

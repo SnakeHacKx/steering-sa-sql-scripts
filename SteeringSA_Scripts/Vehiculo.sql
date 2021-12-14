@@ -11,6 +11,7 @@ ALTER PROC PROC_REGISTRAR_VEHICULO(
 	@MsgError VARCHAR(50) = '' OUTPUT
 )
 AS
+BEGIN
 BEGIN TRAN
 	IF NOT EXISTS(SELECT * FROM Vehiculo WHERE Placa=@Placa)
 	BEGIN
@@ -31,6 +32,7 @@ BEGIN TRAN
 		SET @MsgError='Ya existe un vehículo registrado con estos datos'--MENSAJE EN CASO DE QUE YA EXISTA UN VEHICULO REGISTRADO CON ESOS DATOS
 		ROLLBACK
 	END
+END
 GO
 
 --PROCEDIMIENTO PARA ACTUALIZAR DATOS DE UN VEHICULO
@@ -143,25 +145,52 @@ BEGIN TRAN
 END
 GO
 
+--PROCEDIMIENTO PARA OBTENER LOS REPORTES DE UN VEHICULO
+CREATE PROC PROC_OBTENER_REPORTES_VEHICULO(
+	@Placa_Vehiculo VARCHAR(10),
+	@MsgSuccess VARCHAR(50)='' OUTPUT,
+	@MsgError VARCHAR(50) ='' OUTPUT
+)
+AS
+BEGIN
+	IF EXISTS(SELECT * FROM VEHICULO WHERE Placa=@Placa_Vehiculo)
+	BEGIN
+		SELECT Cod_reporte FROM Reporte WHERE Placa_Vehiculo = @Placa_Vehiculo
+	END
+	ELSE
+	BEGIN
+		SET @MsgError=('La placa introducida no corresponde a ningun vehiculo de la flota')
+	END
+END
+GO
+--PROCEDIMIENTO PARA OBTENER LOS VEHICULOS QUE ESTAN DISPONIBLES A LA FECHA
+CREATE PROC PROC_OBTENER_VEHICULOS_DISPONIBLE
+AS
+BEGIN
+	SELECT * FROM V_GENERALES_DE_VEHICULO WHERE Estado = 'DISPONIBLE'
+END
+GO
+
+
 --MOSTRAR TODOS
 ALTER PROC PROC_LISTAR_TODOS_VEHICULOS
 AS
 BEGIN
-	SELECT Placa AS 'Placa de vehiculo',Tipo,Modelo_vehiculo AS 'Modelo de Vehiculo',pasajero AS 'Capacidad',Color,Tipo_de_combustible AS 'Tipo de combustible',Estado FROM Vehiculo
+	SELECT * FROM V_GENERALES_DE_VEHICULO
 	ORDER BY [Placa de vehiculo]
 END
 GO
 
 --BUSCAR POR PLACA
-CREATE PROC PROC_BUSCAR_VEHICULO_POR_PLACA(
+ALTER PROC PROC_BUSCAR_VEHICULO_POR_PLACA(
 	@Placa varchar(10),
 	@MsgError VARCHAR(50)='' OUTPUT
 )
 AS
 BEGIN
-	IF EXISTS(SELECT * FROM V_GENERALES_DE_VEHICULO WHERE [Placa de vehiculo]=@Placa)
+	IF EXISTS(SELECT * FROM V_GENERALES_DE_VEHICULO WHERE [Placa de vehiculo]LIKE @Placa+'%')
 	BEGIN
-		SELECT * FROM V_GENERALES_DE_VEHICULO WHERE [Placa de vehiculo]=@Placa
+		SELECT * FROM V_GENERALES_DE_VEHICULO WHERE [Placa de vehiculo] LIKE @Placa+'%'
 	END
 	ELSE
 		SET @MsgError='VEHICULO NO ENCONTRADO'
@@ -184,7 +213,7 @@ BEGIN
 	IF (@pasajero_init<=@pasajero_top) OR (@pasajero_init IS NULL AND @pasajero_top IS NULL)--solo es necesaria la validacion del que el rango sea correcto porque los otros valores estan pre cargados en combo box
 	BEGIN																					--lo que hace que siempre esten correctos
 		SELECT *FROM V_GENERALES_DE_VEHICULO --se accede a los datos generales del vehiculo por medio de la vista
-		WHERE ([Modelo de Vehiculo] =@Modelo_vehiculo OR @Modelo_vehiculo IS NULL)--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
+		WHERE (([Modelo de Vehiculo] LIKE @Modelo_vehiculo+'%') OR @Modelo_vehiculo IS NULL)--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
 			AND (Tipo=@Tipo OR @Tipo IS NULL)									--en caso de que no haya sido seleccionado el parametro como filtro entonces vendra como Null lo que hace que la condicion sea true pero no busca en la base de datos
 			AND((Capacidad BETWEEN @pasajero_init AND @pasajero_top) OR (@pasajero_init IS NULL AND @pasajero_top IS NULL ))
 			AND ([Tipo de combustible] = @Tipo_de_combustible OR @Tipo_de_combustible IS NULL)

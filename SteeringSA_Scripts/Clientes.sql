@@ -113,9 +113,8 @@ GO
 ALTER PROC PROC_LISTAR_TODOS_CLIENTES
 AS
 BEGIN
-	SELECT Cedula_Cliente AS 'N° Cedula',Nombre_Cliente+' '+Apellido_Cliente AS 'Nombre completo',YEAR(GETDATE())-YEAR(Fecha_Nacimiento_Cliente) AS 'Edad',
-	Telefono_Cliente AS 'Telefono',Direccion_CLiente AS 'Direccion' FROM TB_Cliente
-	ORDER BY [Nombre completo]
+	SELECT * FROM V_GENERALES_DE_CLIENTE
+	ORDER BY Nombre
 END
 GO
 

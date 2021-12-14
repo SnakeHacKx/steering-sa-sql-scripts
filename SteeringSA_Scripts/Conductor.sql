@@ -81,13 +81,11 @@ AS
 		ELSE
 		BEGIN
 			SET @MsgError='El conductor no puede ser menor de edad'
-			ROLLBACK TRAN--CANCELACION DE LA TRANSACCION
 		END
 	END
 	ELSE
 	BEGIN
 		SET @MsgError='Actualmente no hay conductor registrado con el numero de cedula especificado'
-		ROLLBACK
 	END
 GO
 --Procedimiento para eliminar conductores
