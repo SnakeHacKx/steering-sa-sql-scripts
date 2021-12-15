@@ -18,7 +18,7 @@ BEGIN TRAN
 	DECLARE @Monto_Total money,-- EL TOTAL A PAGAR POR LOS DIAS QUE SE REALIZO EL SERVICIO
 	@Validacion INT--SEGUNA EL VALOR QUE TENGA SE IMPRIME UN MENSAJE DE ERROR DIFERENTE
 	--Se verifica que la fecha de inicio sea mayor o igual a la final y que sea mayor o igual a la actual
-	IF (@F_Inicio<=@F_Final) AND (@F_Inicio>=Format(GETDATE(),'yyyy-MM-dd'))
+	IF (@F_Inicio<=@F_Final) AND (@F_Inicio>=Format(GETDATE(),'yyyy-MM-dd')) --desactivar para cargar los datos base por las fechas
 	BEGIN
 		--SE VERIFICA QUE EL CONDUCTOR NO TENGA REGISTRADO UN SERVICIO ENTRE LAS FECHAS DEL NUEVO SERVICIO A REALIZAR
 		IF NOT EXISTS(SELECT * FROM Servicio WHERE Cedula_Conductor=@Cedula_Conductor and (@F_Inicio between Fecha_inicio and Fecha_finalizacion) and (@F_Final between Fecha_inicio and Fecha_finalizacion))
@@ -274,13 +274,13 @@ ALTER PROC PROC_BUSCAR_CODIGO_SERVICIO(
 )
 AS
 BEGIN
-	IF EXISTS(SELECT *FROM Servicio WHERE Cod_Servicio=@Codigo_Servicio)
+	IF EXISTS(SELECT *FROM V_GENERALES_DE_SERVICIO WHERE ID=@Codigo_Servicio)
 	BEGIN
 		SELECT *FROM V_GENERALES_DE_SERVICIO
-		WHERE Codigo = @Codigo_Servicio
+		WHERE ID = @Codigo_Servicio
 	END
 	ELSE
-		SET @MsgError ='SERVICIO NO ENCONTRADO'
+		SET @MsgError ='Servicio no encontrado'
 END
 GO
 
@@ -303,12 +303,12 @@ BEGIN
 		IF (@Costo_inicial<=@Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL)
 		BEGIN
 			SELECT * FROM V_GENERALES_DE_SERVICIO
-			WHERE ([Cedula de Cliente]=@Cedula_Cliente OR @Cedula_Cliente IS NULL)
-				AND([Cedula de Conductor] = @Cedula_Conductor OR @Cedula_Conductor IS NULL)
-				AND(([Placa de vehiculo] LIKE @Placa_Vehiculo+'%') OR @Placa_Vehiculo IS NULL)
-				AND([Tipo de servicio]=@Tipo_Servicio OR @Tipo_Servicio IS NULL)
-				AND(((CONVERT(DATETIME,[Fecha de inicio],103) BETWEEN @Fecha_inicial AND @Fecha_final)AND(CONVERT(DATETIME,[Fecha de finalizacion],103) BETWEEN @Fecha_inicial AND @Fecha_final)) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
-				AND(([Costo total] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
+			WHERE ([Cédula (Cliente)]=@Cedula_Cliente OR @Cedula_Cliente IS NULL)
+				AND([Cédula (Conductor)] = @Cedula_Conductor OR @Cedula_Conductor IS NULL)
+				AND(([Matrícula del Vehículo] LIKE @Placa_Vehiculo+'%') OR @Placa_Vehiculo IS NULL)
+				AND([Tipo de Servicio]=@Tipo_Servicio OR @Tipo_Servicio IS NULL)
+				AND(((CONVERT(DATETIME,[Fecha de Inicio],103) BETWEEN @Fecha_inicial AND @Fecha_final)AND(CONVERT(DATETIME,[Fecha de Finalización],103) BETWEEN @Fecha_inicial AND @Fecha_final)) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
+				AND(([Costo Total] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
 		END
 		ELSE
 			SET @MsgError='VERIFIQUE QUE EL RANGO INICIAL DE COSTOS SEA MENOR AL RANGO FINAL'	

@@ -25,7 +25,7 @@ ALTER FUNCTION FUNC_OBTENER_ROL_USUARIO()
 RETURNS VARCHAR(30)
 AS
 BEGIN
-	DECLARE @User_Rol VARCHAR(10)
+	DECLARE @User_Rol VARCHAR(30)
 	SET @User_Rol=(SELECT p.name FROM sys.database_role_members rm
 	INNER JOIN sys.database_principals p ON rm.role_principal_id = p.principal_id
 	INNER JOIN sys.database_principals m ON rm.member_principal_id = m.principal_id
@@ -58,12 +58,12 @@ BEGIN TRAN
 			EXEC(@Crear_Usuario)							--Ejecuta la sentencia para crear el usuario 
 			IF @User_rol='Empleado'							--Si es empleado se le asigna el rol de empleado
 			BEGIN
-				SET @Asinar_rol='ALTER ROLE [Rol_Empleado] ADD MEMBER ['+@User_name+']'
+				SET @Asinar_rol='ALTER SERVER ROLE [Rol_Empleado] ADD MEMBER ['+@User_name+']'
 				EXEC(@Asinar_rol)							--ejecuta la sentencia para asignar al nuevo usuario el rol de empleado
 			END
 			ELSE
 			BEGIN
-				SET @Asinar_rol = 'ALTER ROLE [Rol_Administrador] ADD MEMBER ['+@User_name+']'
+				SET @Asinar_rol = 'ALTER SERVER ROLE [Rol_Administrador] ADD MEMBER ['+@User_name+']'
 				EXEC(@Asinar_rol)--ejecuta la sentencia para asignar al nuevo usuario el rol de empleado
 			END
 			SET @MsgSuccess ='Usuario creado exitosamente'
@@ -114,80 +114,67 @@ BEGIN
 END
 GO
 
---MODIFICAR CONTRASEÑA DE USUARIO
-ALTER PROC PROC_CAMBIAR_CONTRASEÑA_USUARIO(
+--EDITAR USUARIO 
+ALTER PROC PROC_EDITAR_USUARIOS(
 	@User_name VARCHAR(25),
-	@New_pass VARCHAR(30),
-	@MsgSuccess VARCHAR(50)='' OUTPUT,
-	@MsgError VARCHAR(50)='' OUTPUT
+	@new_name VARCHAR(25)=NULL,
+	@New_pass VARCHAR(30)=NULL,
+	@MsgSuccess VARCHAR(100)='' OUTPUT,
+	@MsgError VARCHAR(100)='' OUTPUT
 )
 AS
 BEGIN
-	BEGIN TRAN
 	IF EXISTS(SELECT * FROM V_VER_USUARIOS WHERE Usuario=@User_name)
 	BEGIN
-		DECLARE @query VARCHAR(100)
-		BEGIN TRY
-			SET @query = 'ALTER LOGIN '+@User_name+' WITH PASSWORD = '''+@New_pass+''''
-			EXEC(@query)
-			SET @MsgSuccess='Contraseña actualizada correctamente'
-			COMMIT
-		END TRY
-		BEGIN CATCH
-			SET @MsgError='Ocurrio un error al intentar cambiar la contraseña'
-			ROLLBACK
-		END CATCH
-	END
-	ELSE
-	BEGIN
-		SET @MsgError='El nombre de usuario ingresado no se encuentra registrado'
-		ROLLBACK
-	END
-END
-GO
-
---MODIFICAR NOMBRE DE USUARIO
-ALTER PROC PROC_CAMBIAR_NOMBRE_DE_USUARIO(
-	@User_name VARCHAR(25),
-	@new_name VARCHAR(25),
-	@MsgSuccess VARCHAR(50)='' OUTPUT,
-	@MsgError VARCHAR(50)='' OUTPUT
-)
-AS
-BEGIN
-	BEGIN TRAN
-	IF EXISTS(SELECT * FROM V_VER_USUARIOS WHERE Usuario=@User_name)
-	BEGIN
-		IF NOT EXISTS(SELECT * FROM V_VER_USUARIOS WHERE Usuario=@new_name)
+	DECLARE @query VARCHAR(100)
+		IF (@new_name IS NOT NULL)
 		BEGIN
-			DECLARE @query VARCHAR(100)
+		BEGIN TRAN
+			IF NOT EXISTS(SELECT * FROM V_VER_USUARIOS WHERE Usuario=@new_name)
+			BEGIN
+				BEGIN TRY
+					SET @query ='ALTER USER '+@User_name+' WITH NAME = '+@new_name
+					EXEC(@query)
+					SET @query ='ALTER LOGIN '+@User_name+' WITH NAME = '+@new_name
+					EXEC(@query)
+					SET @MsgSuccess='Nombre de usuario actualizado correctamente'
+					COMMIT
+				END TRY
+				BEGIN CATCH
+					SET @MsgError='Ocurrio un error al intentar cambiar el nombre de usuario'
+					ROLLBACK
+				END CATCH
+			END
+			ELSE
+			BEGIN
+				SET @MsgError='El nuevo nombre de usuario ya se encuentra en uso'
+				ROLLBACK
+			END
+		END
+		IF(@New_pass IS NOT NULL)
+		BEGIN
+		BEGIN TRAN
 			BEGIN TRY
-				SET @query ='ALTER USER '+@User_name+' WITH NAME = '+@new_name
+				SET @query = 'ALTER LOGIN '+@User_name+' WITH PASSWORD = '''+@New_pass+''''
 				EXEC(@query)
-				SET @query ='ALTER LOGIN '+@User_name+' WITH NAME = '+@new_name
-				EXEC(@query)
-				SET @MsgSuccess='Nombre de usuario actualizado correctamente'
+				SET @MsgSuccess='Contraseña actualizada correctamente'
 				COMMIT
 			END TRY
 			BEGIN CATCH
-				SET @MsgError='Ocurrio un error al intentar cambiar el nombre de usuario'
+				SET @MsgError='Ocurrio un error al intentar cambiar la contraseña'
 				ROLLBACK
 			END CATCH
-		END
-		ELSE
-		BEGIN
-			SET @MsgError='El nuevo nombre de usuario ya se encuentra en uso'
-			ROLLBACK
 		END
 	END
 	ELSE
 	BEGIN
 		SET @MsgError='El nombre de usuario ingresado no se encuentra registrado'
-		ROLLBACK
 	END
 END
 GO
 
+
+--PROCEDIMIENTO PARA VER USUARIOS
 CREATE PROC PROC_MOSTRAR_USUARIOS
 AS
 BEGIN
@@ -203,5 +190,12 @@ ALTER PROC PROC_OBTENER_ROL_USUARIO(
 AS
 BEGIN
 	SET @User_rol = DBO.FUNC_OBTENER_ROL_USUARIO()
+END
+GO
+--PROCEDIMIENTO PARA VER HISTORIAL
+ALTER PROC PROC_VER_HISTORIAL
+AS
+BEGIN
+	SELECT * FROM V_VER_HISTORIAL_DE_ACCIONES ORDER BY [ID de Acción]
 END
 GO

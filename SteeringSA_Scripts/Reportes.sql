@@ -178,11 +178,11 @@ END
 GO
 
 --MOSTRADO TODOS LOS REPORTES
-CREATE PROC PROC_LISTAR_TODOS_REPORTES
+ALTER PROC PROC_LISTAR_TODOS_REPORTES
 AS
 BEGIN
 	SELECT * FROM V_GENERALES_DE_REPORTE
-	ORDER BY [Codigo de Reporte]
+	ORDER BY ID
 END
 GO
 
@@ -193,13 +193,13 @@ CREATE PROC PROC_BUSCAR_CODIGO_REPORTE(
 )
 AS
 BEGIN
-	IF EXISTS(SELECT * FROM V_GENERALES_DE_REPORTE WHERE [Codigo de Reporte]=@Cod_Reporte)
+	IF EXISTS(SELECT * FROM V_GENERALES_DE_REPORTE WHERE [ID]=@Cod_Reporte)
 	BEGIN
 		SELECT * FROM V_GENERALES_DE_REPORTE 
-		WHERE [Codigo de Reporte]=@Cod_Reporte
+		WHERE [ID]=@Cod_Reporte
 	END
 	ELSE
-		SET @MsgError='REPORTE NO ENCONTRADO'
+		SET @MsgError='Reporte no encontrado'
 END
 GO
 
@@ -215,7 +215,7 @@ BEGIN
 	IF (@Fecha_inicio<=@Fecha_final) OR (@Fecha_inicio IS NULL AND @Fecha_final IS NULL)
 	BEGIN
 		SELECT * FROM V_GENERALES_DE_REPORTE
-		WHERE ((CONVERT(DATETIME,[Fecha de reporte],103) BETWEEN @Fecha_inicio AND @Fecha_final) OR (@Fecha_inicio IS NULL AND @Fecha_final IS NULL))--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
+		WHERE ((CONVERT(DATETIME,[Fecha de Registro],103) BETWEEN @Fecha_inicio AND @Fecha_final) OR (@Fecha_inicio IS NULL AND @Fecha_final IS NULL))--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
 			AND (Estado =@Estado_reporte OR @Estado_reporte IS NULL)															--en caso de que no haya sido seleccionado el parametro como filtro entonces vendra como Null lo que hace que la condicion sea true pero no busca en la base de datos
 	END
 	ELSE

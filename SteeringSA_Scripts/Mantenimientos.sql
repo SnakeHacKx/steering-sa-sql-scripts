@@ -190,13 +190,13 @@ CREATE PROC PROC_BUSCAR_CODIGO_MANTENIMIENTO(
 )
 AS
 BEGIN
-	IF EXISTS(SELECT * FROM V_GENERALES_DE_MANTENIMIENTO WHERE [Codigo de mantenimiento]=@Cod_Mantenimiento)
+	IF EXISTS(SELECT * FROM V_GENERALES_DE_MANTENIMIENTO WHERE [ID]=@Cod_Mantenimiento)
 	BEGIN
 		SELECT * FROM V_GENERALES_DE_MANTENIMIENTO
-		WHERE [Codigo de mantenimiento]=@Cod_Mantenimiento
+		WHERE [ID]=@Cod_Mantenimiento
 	END
 	ELSE
-		SET @MsgError='MANTENIMIENTO NO ENCONTRADO'
+		SET @MsgError='Mantenimineto no encontrado'
 END
 GO
 
@@ -218,11 +218,11 @@ BEGIN
 		IF (@Costo_inicial<=@Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL)
 		BEGIN
 			SELECT * FROM V_GENERALES_DE_MANTENIMIENTO
-			WHERE (([Costo total] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
-				AND((CONVERT(DATETIME,[Fecha de realizacion],103) BETWEEN @Fecha_inicial AND @Fecha_final) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
+			WHERE (([Costo Total] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
+				AND((CONVERT(DATETIME,[Fecha de Realización],103) BETWEEN @Fecha_inicial AND @Fecha_final) OR (@Fecha_inicial IS NULL AND @Fecha_final IS NULL))
 				AND([Estado Actual]=@Estado OR @Estado IS NULL)
-				AND([Placa de vehiculo]=@Placa_vehiculo OR @Placa_vehiculo IS NULL)
-				AND([Tipo de vehiculo]=@Tipo_vehiculo OR @Tipo_vehiculo IS NULL)
+				AND([Matrícula de Vehículo]=@Placa_vehiculo OR @Placa_vehiculo IS NULL)
+				AND([Tipo de Vehículo]=@Tipo_vehiculo OR @Tipo_vehiculo IS NULL)
 		END
 		ELSE
 			SET @MsgError='VERIFIQUE QUE EL RANGO INICIAL DE COSTOS SEA MENOR AL RANGO FINAL'	

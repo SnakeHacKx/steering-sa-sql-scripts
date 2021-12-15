@@ -126,3 +126,5 @@ CREATE TABLE TB_Historial(
 	Fecha DATE DEFAULT (GETDATE()),
 );
 GO
+
+

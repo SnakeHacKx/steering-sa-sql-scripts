@@ -146,16 +146,16 @@ END
 GO
 
 --PROCEDIMIENTO PARA OBTENER LOS REPORTES DE UN VEHICULO
-CREATE PROC PROC_OBTENER_REPORTES_VEHICULO(
+ALTER PROC PROC_OBTENER_REPORTES_VEHICULO(
 	@Placa_Vehiculo VARCHAR(10),
 	@MsgSuccess VARCHAR(50)='' OUTPUT,
 	@MsgError VARCHAR(50) ='' OUTPUT
 )
 AS
 BEGIN
-	IF EXISTS(SELECT * FROM VEHICULO WHERE Placa=@Placa_Vehiculo)
+	IF EXISTS(SELECT * FROM Vehiculo WHERE Placa=@Placa_Vehiculo)
 	BEGIN
-		SELECT Cod_reporte FROM Reporte WHERE Placa_Vehiculo = @Placa_Vehiculo
+		SELECT * FROM V_GENERALES_DE_REPORTE WHERE [Matrícula del Vehículo] = @Placa_Vehiculo
 	END
 	ELSE
 	BEGIN
@@ -177,7 +177,7 @@ ALTER PROC PROC_LISTAR_TODOS_VEHICULOS
 AS
 BEGIN
 	SELECT * FROM V_GENERALES_DE_VEHICULO
-	ORDER BY [Placa de vehiculo]
+	ORDER BY Matrícula
 END
 GO
 
@@ -188,12 +188,12 @@ ALTER PROC PROC_BUSCAR_VEHICULO_POR_PLACA(
 )
 AS
 BEGIN
-	IF EXISTS(SELECT * FROM V_GENERALES_DE_VEHICULO WHERE [Placa de vehiculo]LIKE @Placa+'%')
+	IF EXISTS(SELECT * FROM V_GENERALES_DE_VEHICULO WHERE [Matrícula]LIKE @Placa+'%')
 	BEGIN
-		SELECT * FROM V_GENERALES_DE_VEHICULO WHERE [Placa de vehiculo] LIKE @Placa+'%'
+		SELECT * FROM V_GENERALES_DE_VEHICULO WHERE [Matrícula] LIKE @Placa+'%'
 	END
 	ELSE
-		SET @MsgError='VEHICULO NO ENCONTRADO'
+		SET @MsgError='Vehículo no encontrado'
 END
 GO
 
@@ -213,10 +213,10 @@ BEGIN
 	IF (@pasajero_init<=@pasajero_top) OR (@pasajero_init IS NULL AND @pasajero_top IS NULL)--solo es necesaria la validacion del que el rango sea correcto porque los otros valores estan pre cargados en combo box
 	BEGIN																					--lo que hace que siempre esten correctos
 		SELECT *FROM V_GENERALES_DE_VEHICULO --se accede a los datos generales del vehiculo por medio de la vista
-		WHERE (([Modelo de Vehiculo] LIKE @Modelo_vehiculo+'%') OR @Modelo_vehiculo IS NULL)--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
+		WHERE (([Modelo] LIKE @Modelo_vehiculo+'%') OR @Modelo_vehiculo IS NULL)--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
 			AND (Tipo=@Tipo OR @Tipo IS NULL)									--en caso de que no haya sido seleccionado el parametro como filtro entonces vendra como Null lo que hace que la condicion sea true pero no busca en la base de datos
 			AND((Capacidad BETWEEN @pasajero_init AND @pasajero_top) OR (@pasajero_init IS NULL AND @pasajero_top IS NULL ))
-			AND ([Tipo de combustible] = @Tipo_de_combustible OR @Tipo_de_combustible IS NULL)
+			AND ([Tipo de Combustible] = @Tipo_de_combustible OR @Tipo_de_combustible IS NULL)
 			AND (Estado = @Estado_vehiculo OR @Estado_vehiculo IS NULL)
 			AND(Color = @Color OR @Color IS NULL)
 	END
@@ -224,3 +224,4 @@ BEGIN
 		SET @MsgError='INTERVALO DE CANTIDAD DE PASAJEROS NO VALIDO ¡VERIFIQUE LOS VALORES!'
 END
 GO
+

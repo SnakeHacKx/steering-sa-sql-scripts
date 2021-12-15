@@ -126,13 +126,13 @@ ALTER PROC PROC_BUSCAR_CEDULA_CLIENTE(
 )
 AS
 BEGIN
-	IF EXISTS(SELECT *FROM V_GENERALES_DE_CLIENTE WHERE [N° Cedula] LIKE @Cedula_Cliente+'%')
+	IF EXISTS(SELECT *FROM V_GENERALES_DE_CLIENTE WHERE [N° Cédula] LIKE @Cedula_Cliente+'%')
 	BEGIN
 		SELECT *FROM V_GENERALES_DE_CLIENTE
-		WHERE [N° Cedula] LIKE @Cedula_Cliente+'%'
+		WHERE [N° Cédula] LIKE @Cedula_Cliente+'%'
 	END
 	ELSE
-		SET @MsgError='CLIENTE NO ENCONTRADO'
+		SET @MsgError='Cliente no encontrado'
 END
 GO
 
@@ -149,11 +149,11 @@ AS
 BEGIN
 	IF (@Edad_inicial<@Edad_final) OR(@Edad_inicial IS NULL AND @Edad_final IS NULL)
 	BEGIN
-		IF EXISTS (SELECT * FROM V_GENERALES_DE_CLIENTE WHERE (Edad BETWEEN @Edad_inicial AND @Edad_final) OR (Direccion LIKE '%'+@Direccion_cliente+'%') OR (Nombre+' '+Apellido LIKE '%'+@Nombre_Cliente+'%'))
+		IF EXISTS (SELECT * FROM V_GENERALES_DE_CLIENTE WHERE (Edad BETWEEN @Edad_inicial AND @Edad_final) OR (Dirección LIKE '%'+@Direccion_cliente+'%') OR (Nombre+' '+Apellido LIKE '%'+@Nombre_Cliente+'%'))
 		BEGIN
 			SELECT * FROM V_GENERALES_DE_CLIENTE
 			WHERE ((Edad BETWEEN @Edad_inicial AND @Edad_final) OR (@Edad_inicial IS NULL AND @Edad_final IS NULL))
-			AND((Direccion LIKE '%'+@Direccion_cliente+'%') OR (@Direccion_cliente IS NULL))
+			AND((Dirección LIKE '%'+@Direccion_cliente+'%') OR (@Direccion_cliente IS NULL))
 			AND((Nombre+' '+Apellido LIKE '%'+@Nombre_Cliente+'%') OR (@Nombre_Cliente IS NULL))
 		END
 		ELSE

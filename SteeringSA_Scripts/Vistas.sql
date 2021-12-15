@@ -112,14 +112,14 @@ AS
 	FORMAT(H.Fecha,'dd-MM-yyyy') AS 'Fecha de Realización',
 	H.ID_operacion'ID de Acción'
 	FROM TB_Historial H
-	INNER JOIN V_VER_USUARIOS U ON U.Usuario=H.Nombre_usuario
+	INNER JOIN V_VER_USUARIOS U ON U.Rol=H.Rol_Usuario
 GO
 
 --VISTA PARA OBTENER LOS USUARIOS Y SUS ROLES
 ALTER VIEW V_VER_USUARIOS
 AS
-	SELECT m.name Usuario, p.name Rol FROM sys.database_role_members rm
-	INNER JOIN sys.database_principals p ON rm.role_principal_id = p.principal_id
-	INNER JOIN sys.database_principals m ON rm.member_principal_id = m.principal_id
-	WHERE m.type='S' --la S identifica al tipo de usuario SQL 
+	SELECT m.name Usuario, p.name Rol FROM sys.server_role_members rm
+	INNER JOIN sys.server_principals p ON rm.role_principal_id = p.principal_id
+	INNER JOIN sys.server_principals m ON rm.member_principal_id = m.principal_id
+	WHERE m.type='S' AND (rm.role_principal_id = 279 OR rm.role_principal_id =294 OR rm.role_principal_id = 5)--la S identifica al tipo de usuario SQL 
 GO

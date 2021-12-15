@@ -76,7 +76,7 @@ GO
 CREATE PROC PROC_OBTENER_NOMBRES_T_SERVICIO
 AS
 BEGIN
-	SELECT [Nombre del servicio] FROM V_GENERALES_DE_TIPO_DE_SERVICIO
+	SELECT [Nombre] FROM V_GENERALES_DE_TIPO_DE_SERVICIO
 END
 GO
 
@@ -85,7 +85,7 @@ ALTER PROC PROC_LISTAR_TODOS_T_SERVICIOS
 AS
 BEGIN
 	SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO
-	ORDER BY Codigo
+	ORDER BY ID
 END
 GO
 
@@ -96,10 +96,10 @@ ALTER PROC PROC_BUSCAR_CODIGO_TIPO_SERVICIO(
 )
 AS
 BEGIN
-	IF EXISTS(SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO WHERE Codigo=@Cod_tipo_servicio)
+	IF EXISTS(SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO WHERE ID=@Cod_tipo_servicio)
 	BEGIN
 		SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO 
-		WHERE Codigo=@Cod_tipo_servicio
+		WHERE ID =@Cod_tipo_servicio
 	END
 	ELSE
 		SET @MsgError='TIPO DE SERVICIO NO ENCONTRADO'
@@ -119,11 +119,11 @@ AS
 BEGIN
 	IF (@Costo_inicial<@Costo_final) OR(@Costo_inicial IS NULL AND @Costo_final IS NULL)
 	BEGIN
-		IF EXISTS (SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO WHERE ([Costo diario] BETWEEN @Costo_inicial AND @Costo_final) OR ([Nombre del servicio] LIKE @Nombre_Servicio+'%'))
+		IF EXISTS (SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO WHERE ([Costo Diario] BETWEEN @Costo_inicial AND @Costo_final) OR ([Nombre] LIKE @Nombre_Servicio+'%'))
 		BEGIN
 			SELECT * FROM V_GENERALES_DE_TIPO_DE_SERVICIO
-			WHERE (([Costo diario] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
-			AND(([Nombre del servicio] LIKE @Nombre_Servicio+'%') OR (@Nombre_Servicio IS NULL))
+			WHERE (([Costo Diario] BETWEEN @Costo_inicial AND @Costo_final) OR (@Costo_inicial IS NULL AND @Costo_final IS NULL))
+			AND(([Nombre] LIKE @Nombre_Servicio+'%') OR (@Nombre_Servicio IS NULL))
 		END
 		ELSE
 			SET @MsgError='NO EXISTEN REGISTROS QUE CUMPLAN LOS PARAMETROS DE FILTRO ESTABLECIDOS'

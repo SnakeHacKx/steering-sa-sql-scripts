@@ -11,11 +11,11 @@ EXEC PROC_REGISTRAR_CONDUCTOR '06-0142-000124','Jhon','Barrera','6777-9608',"01/
 
 --DATOS DE LA TABLA VEHICULOS
 EXEC PROC_REGISTRAR_VEHICULO 'AG0145','Accent','Sedán','5','Gasolina 95','Azul'
-EXEC PROC_REGISTRAR_VEHICULO 'G24S14','Tacoma','Pickup','4','Gasolina 95','Blanco'
+EXEC PROC_REGISTRAR_VEHICULO 'G24S14','Tacoma','Todoterreno','4','Gasolina 95','Blanco'
 EXEC PROC_REGISTRAR_VEHICULO '245135','FJ4DS','Camión','2','Diesel','Gris'
 EXEC PROC_REGISTRAR_VEHICULO 'A45872','Elantra','Sedán','5','Gasolina 95','Rojo'
 EXEC PROC_REGISTRAR_VEHICULO 'E14F25','Elantra','Sedán','5','Gasolina 95','Blanco'
-EXEC PROC_REGISTRAR_VEHICULO '558214','R300','Moto','2','Gasolina 95','Gris'
+EXEC PROC_REGISTRAR_VEHICULO '558214','R300','Motocicleta','2','Gasolina 95','Gris'
 EXEC PROC_REGISTRAR_VEHICULO 'BO0134','N400','Minivan','7','Gasolina 95','Negra'
 EXEC PROC_REGISTRAR_VEHICULO '122DS1','Coaster','Autobús','8+','Diesel','Gris'
 
@@ -56,9 +56,10 @@ EXEC PROC_REGISTRAR_REPORTE '122DS1','Problemas al intentar encender el vehiculo
 EXEC PROC_REGISTRAR_REPORTE '245135','Se rompio el vidro delantero por una pelota mientras se encontraba estacionado',"09/23/2021"
 
 --DATOS DE MANTENIMIENTOS
-EXEC PROC_REGISTRAR_MANTENIMIENTO 'AG0145','AG01',35.00,"11/13/2021",'Se realizo el cambio de la faja de tiempo gastada','Realizado'
-EXEC PROC_REGISTRAR_MANTENIMIENTO '245135','2450',50.00,"11/13/2021",'Cambio de luces por leds debido al desgaste','Realizado'
+EXEC PROC_REGISTRAR_MANTENIMIENTO 'AG0145','AG01',35.00,"11/13/2021",'Se realizo el cambio de la faja de tiempo gastada','Finalizado'
+EXEC PROC_REGISTRAR_MANTENIMIENTO '245135','2450',50.00,"11/13/2021",'Cambio de luces por leds debido al desgaste','Finalizado'
 EXEC PROC_REGISTRAR_MANTENIMIENTO 'A45872','A450',45.00,"11/13/2021",'Las pastillas de freno delanteras se encontraban en mal estado y se hizo el cambio','Realizado'
-EXEC PROC_REGISTRAR_MANTENIMIENTO 'A45872','S/R',80.00,"11/26/2021",'Mantenimiento general despues de servicio','Realizado'
-EXEC PROC_REGISTRAR_MANTENIMIENTO 'G24S14','S/R',77.00,"12/1/2021",'Mantenimiento preventivo','Realizado'
-EXEC PROC_REGISTRAR_MANTENIMIENTO 'BO0134','S/R',75.00,"12/2/2021",'Mantenimiento preventivo','Realizado'
+EXEC PROC_REGISTRAR_MANTENIMIENTO 'A45872','S/R',80.00,"11/26/2021",'Mantenimiento general despues de servicio','Finalizado'
+EXEC PROC_REGISTRAR_MANTENIMIENTO 'G24S14','S/R',77.00,"12/1/2021",'Mantenimiento preventivo','Finalizado'
+EXEC PROC_REGISTRAR_MANTENIMIENTO 'BO0134','S/R',75.00,"12/2/2021",'Mantenimiento preventivo','Finalizado'
+

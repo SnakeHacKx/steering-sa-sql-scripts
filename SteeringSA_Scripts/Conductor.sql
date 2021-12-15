@@ -135,13 +135,13 @@ ALTER PROC PROC_BUSCAR_CEDULA_CONDUCTOR(
 )
 AS
 BEGIN
-	IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE [N° Cedula] LIKE @Cedula+'%')
+	IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE [N° Cédula] LIKE @Cedula+'%')
 	BEGIN
 		SELECT *FROM V_GENERALES_DE_CONDUCTOR
-		WHERE [N° Cedula] LIKE @Cedula+'%'
+		WHERE [N° Cédula] LIKE @Cedula+'%'
 	END
 	ELSE
-		SET @MsgError='CONDUCTOR NO ENCONTRADO'
+		SET @MsgError='Conductor no encontrado'
 END
 GO
 
@@ -158,10 +158,10 @@ AS
 BEGIN
 	IF @Edad_menor<=@Edad_mayor OR (@Edad_menor IS NULL AND @Edad_mayor IS NULL)
 	BEGIN
-		IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE Licencia =@Tipo_de_licencia OR (Edad BETWEEN @Edad_menor AND @Edad_mayor) OR (Nombre+' '+Apellido LIKE '%'+@Nombre+'%'))
+		IF EXISTS(SELECT *FROM V_GENERALES_DE_CONDUCTOR WHERE [Tipo de Licencia] =@Tipo_de_licencia OR (Edad BETWEEN @Edad_menor AND @Edad_mayor) OR (Nombre+' '+Apellido LIKE '%'+@Nombre+'%'))
 		BEGIN
 			SELECT *FROM V_GENERALES_DE_CONDUCTOR
-			WHERE (Licencia =@Tipo_de_licencia OR @Tipo_de_licencia IS NULL)--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
+			WHERE ([Tipo de Licencia] =@Tipo_de_licencia OR @Tipo_de_licencia IS NULL)--Si el parametro fue seleccionado como filtro desde la GUI entonces sera distinto de null y se buscara en la base de datos, si no lo encuentra la condicion entonces sera false
 			AND ((Edad BETWEEN @Edad_menor AND @Edad_mayor) OR (@Edad_menor IS NULL AND @Edad_mayor IS NULL))--en caso de que no haya sido seleccionado el parametro como filtro entonces vendra como Null lo que hace que la condicion sea true pero no busca en la base de datos
 			AND((Nombre+' '+Apellido LIKE '%'+@Nombre+'%')OR (@Nombre IS NULL))
 		END
